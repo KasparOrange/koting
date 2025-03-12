@@ -1,0 +1,19 @@
+// const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout
+// });
+
+
+// rl.question('What is your name? ', (answer) => {
+//     console.log(`What's up, ${answer}!`);
+//     // Close the interface to free up resources
+//     rl.close();
+// });
+
+
+// Arrow fuction / Anonymous function
+// (parameter) => {
+//     console.log("suck")
+// }
+
+// const readline = require('readline');
