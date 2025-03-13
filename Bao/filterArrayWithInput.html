@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Arrays</h1>
+<h2>The every() Method</h2>
+
+<p>The every() method checks if all array values pass a test.</p>
+
+<input type="number" id="thresholdInput">
+<button onclick="updateFilter()">Apply</button>
+
+<p id="demo"></p>
+
+<script>
+const numbers = [45, 4, 9, 16, 25];
+
+let threshold = 10;
+
+function updateFilter() {
+  threshold = parseInt(document.getElementById("thresholdInput").value);
+  
+  document.getElementById("demo").innerHTML =
+  "All values over " + threshold + ` are: <br>
+  <li>` + numbers.filter(x => x > threshold).join("<li>");
+};
+
+// Initialize display
+updateFilter();
+
+</script>
+
+</body>
+</html>
