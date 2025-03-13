@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <h2>JavaScript switch</h2>
+
+    <p>How old is she?</p>
+
+    <input id=age type="number"
+        onkeypress=
+        "// triggers returnResponse when Enter key is pressed
+        if(event.keyCode == 13) returnResponse()">
+
+    <!-- triggers returnResponse when clicked -->
+    <button onclick="returnResponse()">years</button>
+
+    <p id="demo"></p>
+
+    <script>
+        function returnResponse() {
+            let response;
+            let age = parseInt(document.getElementById("age").value);
+
+            switch (true) {
+                case age >= 1 && age <= 13:
+                    response = "Hey kid, where's your mommy?";
+                    break;
+                case age >= 14 && age <= 18:
+                    response = "Konrad... behave yourself!";
+                    break;
+                case age >= 19 && age <= 30:
+                    response = "Don't worry, he's a good guy!";
+                    break;
+            };
+
+            document.getElementById("demo").innerHTML = response;
+        }
+    </script>
+
+</body>
+
+</html>
