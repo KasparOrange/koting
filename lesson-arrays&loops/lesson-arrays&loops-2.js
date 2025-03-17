@@ -9,7 +9,7 @@ for (let i = 0; i < 11; i++) {
 // creates new array and puts the elements of emptyArray in reverse order into it
 const reverseArray = [];
 
-for ( i = 0; i < emptyArray.length; i++) {
+for ( i = 0; i < emptyArray.length /*or: emptyArray[i]*/; i++) {
     reverseArray[i] = emptyArray[emptyArray.length-(1+i)];
 };
 
