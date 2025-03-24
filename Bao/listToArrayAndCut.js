@@ -1,3 +1,4 @@
+// #region 1
 const input =
 `- Antihypertensives (lower blood pressure)
 - Antipyretics (reduce fever)
@@ -18,4 +19,5 @@ const result = input.split("\n").map(item => item
     // .replace(/\s*\([^)]*\)/g, '')
 );
 
-result.forEach(item => console.log(item));
+// result.forEach(item => console.log(item));
+// #endregion 1
