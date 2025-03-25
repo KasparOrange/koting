@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* specifies to centre over the entire screen height */
+            min-height: 100vh;
+            /* removes the default margin around <body> to not exceed vh */
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Do you feel too happy today?!</h1>
+    <input type="text" id="name" placeholder="How old are you?">
+    <br>
+    <br>
+    <select id="gender">
+        <option value="" disabled selected>What gender?</option>"
+        <option value="male">male</option>
+        <option value="female">female</option>
+    </select>
+    <br>
+    <br>
+    <button onclick="insulter()">Insult me</button>
+    <p id="text"></p>
+
+    <script>
+        // #region: storing insults in the user's local storage
+        localStorage.setItem("ym1", "Du junger Pupikako!");
+        localStorage.setItem("ym2", "Du junger Fuzikako!");
+        localStorage.setItem("om1", "Du alter Pupikako!");
+        localStorage.setItem("om2", "Du alter Fuzikako!");
+        localStorage.setItem("yf1", "Du junge Pupikaka!");
+        localStorage.setItem("yf2", "Du junge Fuzikaka!");
+        localStorage.setItem("of1", "Du alte Pupikaka!");
+        localStorage.setItem("of2", "Du alte Fuzikaka!");
+        // #endregion
+
+        // displaying the insult with insulter() that is activated by the button
+        function insulter() {
+            // #region: declaring variables
+            let fallback = "Wohnung deiner Mutter";
+
+            const age = document.getElementById("name").value;
+            const ageCategory = parseInt(age) < 30 ? "y" : "o";
+            const gender = document.getElementById("gender").value;
+            // y/o (ageCategory) + the first letter of gender
+            const insultBase = ageCategory + gender.charAt(0);
+            const insultNumber = Math.round(Math.random() + 1);
+            // ym/om/yf/of + 1/2
+            const insultKey = insultBase + insultNumber;
+            // #endregion
+
+            // requesting the user's current location using the Geolocation API
+            // The getCurrentPosition() returns a data object that contains the user's latitude (and more)
+            navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                // Using OpenStreetMap's Nominatim API to determine the closest street to the user's location
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                    // converting the API's response to JSON, 
+                    .then(response => response.json())
+                    .then(data => {
+                        // accessing the JSOn object's address property and its road property
+                        street = data.address.road
+                            // OR (if not available):
+                            || fallback;
+
+                        // displaying the insult with the user's location
+                        document.getElementById("text").innerHTML =
+                            localStorage.getItem(insultKey) + "<br>"
+                            + "Ich weiß du bist in der " + street + "!";
+                    });
+            },
+            
+            // if access denied (or other error), the fallback location is displayed
+            // getCurrentPosition() has an in-built error callback as second parameter
+            // that is run when position retrieval fails
+            error => {
+                document.getElementById("text").innerHTML =
+                    localStorage.getItem(insultKey) + "<br>"
+                    + "Ich weiß du bist in der " + fallback + "!";
+            }
+            );
+        };
+    </script>
+</body>
+
+</html>
