@@ -4,7 +4,7 @@ function fetchUserData(userId, callback) {
   console.log("Fetching user data...");
   
   // In a real app, this would be an actual API call
-  setTimeout(function() {
+  setTimeout(() => {
     // Once we have the data (after 2 seconds in this example)
     const userData = {
       id: userId,
@@ -16,6 +16,10 @@ function fetchUserData(userId, callback) {
     callback(userData);
   }, 2000);
 }
+
+setTimeout(() => {
+  console.log("This line runs after 2 seconds!");
+}, 2000);
 
 // This is our callback function
 function displayUserInfo(user) {
