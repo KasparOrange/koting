@@ -13,3 +13,4 @@ numArr.forEach(element => {
         console.log(element);
     }
 });
+
