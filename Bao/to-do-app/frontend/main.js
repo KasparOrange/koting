@@ -1,13 +1,8 @@
 try {
-    // const addBtn = document.getElementById('add-btn');
-    // addBtn.addEventListener(('click', () => {
-    //     addItem();
-    // }));
-
     const response = await fetch('http://127.0.0.1:3000/api/items');
     const items = await response.json();
 
-    const taskList = document.getElementById('task-list');
+    const taskList = document.querySelector('#task-list');
 
     items.forEach(item => {
         const newLiElement = document.createElement('li');
@@ -25,15 +20,11 @@ try {
         newTextElement.textContent = item.text;
 
         newLiElement.appendChild(newTextElement);
-            
-        taskList.appendChild(newLiElement);
 
-        
+        taskList.appendChild(newLiElement);
     });
 
     console.log(items);
-    
-    // Display the tasks
 } catch (error) {
     console.error('Error fetching tasks:', error);
 }
@@ -49,53 +40,75 @@ export async function addItem() {
             },
             body: JSON.stringify({ text }) // Send the new item as JSON
         });
-    
+
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
         }
-    
+
         const data = await response.json();
-            
+
         console.log('Created item:', data);
-        } catch (error) {
-            console.error('Error creating item:', error);
-        }
+    } catch (error) {
+        console.error('Error creating item:', error);
+    }
 }
 
 window.addItem = addItem;
 
 async function deleteItem(id) {
     try {
-    const response = await fetch(`http://127.0.0.1:3000/api/items/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
+        const response = await fetch(`http://127.0.0.1:3000/api/items/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
         }
-    });
 
-    if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-    }
+        const data = await response.json();
 
-    const data = await response.json();
-        
-    console.log('Created item:', data);
+        console.log('Created item:', data);
     } catch (error) {
         console.error('Error creating item:', error);
     }
 }
 
-// app.delete('/api/items/:id', async (req, res) => {
-//   try {
-//     const id = req.params.id;
+// add another sentence to the message element, change its style, and remove it (DOM practice)
+const messageAdjunct = document.createTextNode(' It was fun to make :)');
+const messageElement = document.querySelector('#message');
+messageElement.appendChild(messageAdjunct);
+messageElement.style.color = 'orange';
+// remove it again
+messageAdjunct.remove();
+// remove it again (longer variant)
+// messageElement.removeChild(messageElement.childNodes[0]);
 
-//     const result = await db.collection(collectionName).deleteOne(
-//       { _id: new ObjectId(id) }  // Delete by MongoDB _id
-//     );
+// #region MDN version to update shopping list (without database)
+// const list = document.querySelector('ul');
+// const input = document.querySelector('input');
+// const button = document.querySelector('button');
 
-//     res.json({ deletedCount: result.deletedCount }); // How many documents were deleted
-//   } catch (err) {
-//     console.error('Error deleting item:', err);
-//     res.status(500).json({ error: 'Failed to delete item' });
-//   }
+// button.addEventListener('click', () => {
+//   const myItem = input.value;
+//   input.value = '';
+
+//   const listItem = document.createElement('li');
+//   const listText = document.createElement('span');
+//   const listBtn = document.createElement('button');
+
+//   listItem.appendChild(listText);
+//   listText.textContent = myItem;
+//   listItem.appendChild(listBtn);
+//   listBtn.textContent = 'Delete';
+//   list.appendChild(listItem);
+
+//   listBtn.addEventListener('click', () => {
+//     list.removeChild(listItem);
+//   });
+
+//   input.focus();
 // });
+// #endregion
