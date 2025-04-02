@@ -48,3 +48,9 @@ let asyncFetch = async () => {
 asyncFetch();
 console.log("6. this is logged before the result");
 
+// w3 example
+let myPromise = new Promise(function(myResolve, myReject) {
+    setTimeout(function() { myResolve("I love You !!"); }, 1500);
+  });
+
+myPromise.then(function(value) {console.log(value)});
