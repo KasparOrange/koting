@@ -1,10 +1,11 @@
 // SYNCHRONOUS:
 let tediousFunction = (x,y) => {
     const result = x**100 / x**98;
-    if (y == 1) {console.log ("0. this is logged before the result")};
+    if (y == 1) {console.log ("0. this is logged before the result")}; // ignore the condition
     return result;
 }
 // the function is called and nothing else can happen until it returns
+// 0 is logged first because it's inside the function and quicker
 console.log("1.", tediousFunction(50,1));
 console.log("2. this is logged after the result");
 
@@ -12,7 +13,9 @@ console.log("2. this is logged after the result");
 // with .THEN (promise-based and asynchronous)
 // requires adjusting the function to return a promise
 let tediousPromiseFunction = (x) => {
-    const result = new Promise((resolve) => resolve(x**100 / x**98));
+    const result = new Promise((resolve, reject) => {
+        resolve(x**100 / x**98)
+    });
     return result;
 };
 // .then allows the code to continue executing while waiting for the promise to resolve
