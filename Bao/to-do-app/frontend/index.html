@@ -5,20 +5,36 @@
   <title>My MongoDB App</title>
   <style>
     body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        /* specifies to centre over the entire screen height */
-        min-height: 100vh;
-        /* removes the default margin around <body> to not exceed vh */
-        margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      /* specifies to centre over the entire screen height */
+      min-height: 100vh;
+      /* removes the default margin around <body> to not exceed vh */
+      margin: 0;
     }
-</style>
+
+    li span {
+      margin-right: 20px;
+    }
+
+    .deleteButton {
+      color: red;
+    }
+
+    .completeButton {
+      color: green;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: grey;
+    }
+  </style>
 </head>
 
 <body>
-
   <h1>My to-do app</h1>
 
   <input type="text" id="new-task" placeholder="Add a new task...">
@@ -26,8 +42,6 @@
   <button id="add-task">Add</button>
 
   <ul id="task-list"></ul>
-
-  <p id="message">I hope you like the app!</p>
 
   <script type="module" src="main.js"></script>
 </body>

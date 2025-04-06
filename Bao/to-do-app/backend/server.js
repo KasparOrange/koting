@@ -64,9 +64,9 @@ app.get('/api/items/:id', async (req, res) => {
     const item = await db.collection(collectionName).findOne({ _id: new ObjectId(id) }); // get an item by id
 
     if (!item) {
-        return res.status(404).json({ error: 'Item not found' });
-      }
-    
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
     res.json(item); // Send as JSON response
   } catch (err) {
     console.error('Error fetching items:', err);
@@ -78,12 +78,16 @@ app.get('/api/items/:id', async (req, res) => {
 // POST a new document to the "items" collection
 app.post('/api/items', async (req, res) => {
   try {
-    const newItem = req.body; // The new item comes from the request's JSON body
+    // const newItem = req.body; // The new item comes from the request's JSON body
+    const { text, completed } = req.body;
 
-    const result = await db.collection(collectionName).insertOne(newItem); // Insert into MongoDB
-    res.json({ insertedId: result.insertedId }); // Send back the new item's ID
-  } catch (err) {
-    console.error('Error adding item:', err);
+    // const result = await db.collection(collectionName).insertOne(newItem); // Insert into MongoDB
+    const result = await db.collection(collectionName).insertOne({ text, completed });
+
+    res.json({ _id: result.insertedId, text: text, completed }); // Send back the new item's ID and text
+    // res.status(201).json({ _id: result.insertedId, text });
+  } catch (error) {
+    console.error('Error adding item:', error);
     res.status(500).json({ error: 'Failed to add item' });
   }
 });
