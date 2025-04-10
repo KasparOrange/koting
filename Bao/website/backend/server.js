@@ -30,7 +30,6 @@ const client = new MongoClient(mongoUri);
 let db;
 
 const dbName = 'todoapp';
-const collectionName = 'tasks';
 
 // Connect to MongoDB
 client.connect().then(() => {
@@ -43,84 +42,72 @@ client.connect().then(() => {
 
 // ======== ROUTES (API Endpoints) ======== //
 
-// GET all documents from the "items" collection
-app.get('/api/items', async (req, res) => {
-  try {
-    const items = await db.collection(collectionName).find().toArray(); // Fetch everything
+// Update the collection name to be dynamic
+app.use('/api/:collectionName', async (req, res, next) => {
+  req.collection = db.collection(req.params.collectionName);
+  next();
+});
 
-    res.json(items); // Send as JSON response
+// GET all documents from the specified collection
+app.get('/api/:collectionName', async (req, res) => {
+  try {
+    const items = await req.collection.find().toArray();
+    res.json(items);
   } catch (err) {
     console.error('Error fetching items:', err);
-
     res.status(500).json({ error: 'Failed to fetch items' });
   }
 });
 
-// GET a single document by ID
-app.get('/api/items/:id', async (req, res) => {
+// GET a single document by ID from the specified collection
+app.get('/api/:collectionName/:id', async (req, res) => {
   try {
     const id = req.params.id;
-
-    const item = await db.collection(collectionName).findOne({ _id: new ObjectId(id) }); // get an item by id
-
+    const item = await req.collection.findOne({ _id: new ObjectId(id) });
     if (!item) {
       return res.status(404).json({ error: 'Item not found' });
     }
-
-    res.json(item); // Send as JSON response
+    res.json(item);
   } catch (err) {
-    console.error('Error fetching items:', err);
-
-    res.status(500).json({ error: 'Failed to fetch items' });
+    console.error('Error fetching item:', err);
+    res.status(500).json({ error: 'Failed to fetch item' });
   }
 });
 
-// POST a new document to the "items" collection
-app.post('/api/items', async (req, res) => {
+// POST a new document to the specified collection
+app.post('/api/:collectionName', async (req, res) => {
   try {
-    // const newItem = req.body; // The new item comes from the request's JSON body
-    const { text, completed } = req.body;
-
-    // const result = await db.collection(collectionName).insertOne(newItem); // Insert into MongoDB
-    const result = await db.collection(collectionName).insertOne({ text, completed });
-
-    res.json({ _id: result.insertedId, text: text, completed }); // Send back the new item's ID and text
-    // res.status(201).json({ _id: result.insertedId, text });
+    const { text, completed, user } = req.body;
+    const result = await req.collection.insertOne({ text, completed, user });
+    res.json({ _id: result.insertedId, text, completed, user });
   } catch (error) {
     console.error('Error adding item:', error);
     res.status(500).json({ error: 'Failed to add item' });
   }
 });
 
-// PUT (update) a document by ID
-app.put('/api/items/:id', async (req, res) => {
+// PUT (update) a document by ID in the specified collection
+app.put('/api/:collectionName/:id', async (req, res) => {
   try {
-    const id = req.params.id; // ID from the URL (e.g. /api/items/64ab...)
-
-    const updates = req.body; // The new data to update
-
-    const result = await db.collection(collectionName).updateOne(
-      { _id: new ObjectId(id) },    // Find by MongoDB's special _id type
-      { $set: updates }             // Only update the specified fields
+    const id = req.params.id;
+    const updates = req.body;
+    const result = await req.collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updates }
     );
-
-    res.json({ modifiedCount: result.modifiedCount }); // How many documents were updated
+    res.json({ modifiedCount: result.modifiedCount });
   } catch (err) {
     console.error('Error updating item:', err);
     res.status(500).json({ error: 'Failed to update item' });
   }
 });
 
-// DELETE a document by ID
-app.delete('/api/items/:id', async (req, res) => {
+// DELETE a document by ID from the specified collection
+app.delete('/api/:collectionName/:id', async (req, res) => {
   try {
     const id = req.params.id;
-
-    const result = await db.collection(collectionName).deleteOne(
-      { _id: new ObjectId(id) }  // Delete by MongoDB _id
-    );
-
-    res.json({ deletedCount: result.deletedCount }); // How many documents were deleted
+    const result = await req.collection.deleteOne({ _id: new ObjectId(id) });
+    res.json({ deletedCount: result.deletedCount });
   } catch (err) {
     console.error('Error deleting item:', err);
     res.status(500).json({ error: 'Failed to delete item' });

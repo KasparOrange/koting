@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Gallery</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div id="nav-placeholder"></div>
+  
+  <main>
+    <h1>Gallery</h1>
+
+    <div>
+        <input type="file" accept="image/*">
+        <button id="add-img">Add</button>
+    </div>
+    
+    <div>
+        <label>Assign to: </label>
+        <select id="user-assign">
+            <option selected>All users</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Show: </label>
+        <select id="user-display">
+            <option selected>All users</option>
+        </select>
+    </div>
+        
+    <!-- gallery -->
+  </main>
+    
+  <script type="module" src="main.js"></script>
+  <script type="module" src="gallery.js"></script>
+</body>
+
+</html>
