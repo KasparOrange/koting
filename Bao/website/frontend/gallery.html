@@ -14,7 +14,7 @@
     <h1>Gallery</h1>
 
     <div>
-        <input type="file" accept="image/*">
+        <input type="file" accept="image/*" id="img-input" />
         <button id="add-img">Add</button>
     </div>
     
@@ -28,11 +28,12 @@
     <div>
         <label>Show: </label>
         <select id="user-display">
-            <option selected>All users</option>
+            <option selected>All</option>
+            <option>All users</option>
         </select>
     </div>
         
-    <!-- gallery -->
+    <div id="gallery"></div>
   </main>
     
   <script type="module" src="main.js"></script>

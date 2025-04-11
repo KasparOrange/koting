@@ -30,21 +30,19 @@ const loadUsers = async () => {
 loadUsers();
 
 const addUser = async () => {
-    const text = userInput.value; //make conditional on input.value not being empty?
+    const text = userInput.value;
     userInput.value = '';
 
     const response = await fetch(userBase, {
         method: 'POST',
-        // This tells the server that you're sending JSON data in the request body.
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text }) // Send the new item as JSON
+        body: JSON.stringify({ text })
     });
 
     const newUser = await response.json();
     addUserToDOM(newUser);
-    userSelection.value = newUser.text;
 };
 addUserBtn.addEventListener('click', addUser);
 

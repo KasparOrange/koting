@@ -1,8 +1,10 @@
+// #region boilerplate
 // Import required modules
-const express = require('express');              // Express is the web server framework
+const express = require('express'); // Express is the web server framework
 const { MongoClient, ObjectId } = require('mongodb'); // MongoDB client and ObjectId for working with MongoDB
 const cors = require('cors');
-require('dotenv').config();                      // Loads environment variables from .env file
+require('dotenv').config(); // Loads environment variables from .env file
+const multer = require('multer'); // Import multer for handling file uploads
 
 // Create an Express app
 const app = express();
@@ -17,10 +19,9 @@ app.use(cors());
 app.use(express.json());
 
 // This tells Express to serve static files (like index.html) from the frontend folder
-// When someone visits localhost:3000, they will see the frontend's index.html
 app.use(express.static('../frontend'));
 
-// MongoDB connection URI (e.g. mongodb://localhost:27017), stored in .env file
+// MongoDB connection URI (e.g., mongodb://localhost:27017), stored in .env file
 const mongoUri = process.env.MONGO_URI;
 
 // Create a MongoDB client instance using the URI
@@ -33,86 +34,183 @@ const dbName = 'todoapp';
 
 // Connect to MongoDB
 client.connect().then(() => {
-  // Select the database to use (it will be created if it doesn't exist yet)
   db = client.db(dbName);
   console.log('✅ Connected to MongoDB');
 }).catch(err => {
   console.error('❌ MongoDB connection failed:', err);
 });
 
-// ======== ROUTES (API Endpoints) ======== //
+// Configure multer to store the file in memory
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// Update the collection name to be dynamic
-app.use('/api/:collectionName', async (req, res, next) => {
-  req.collection = db.collection(req.params.collectionName);
-  next();
-});
+// #endregion
 
-// GET all documents from the specified collection
-app.get('/api/:collectionName', async (req, res) => {
+// #region ======== TASKS ROUTES ======== //
+
+// GET all tasks
+app.get('/api/tasks', async (req, res) => {
   try {
-    const items = await req.collection.find().toArray();
-    res.json(items);
+    const tasks = await db.collection('tasks').find().toArray();
+    res.json(tasks);
   } catch (err) {
-    console.error('Error fetching items:', err);
-    res.status(500).json({ error: 'Failed to fetch items' });
+    console.error('Error fetching tasks:', err);
+    res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
 
-// GET a single document by ID from the specified collection
-app.get('/api/:collectionName/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const item = await req.collection.findOne({ _id: new ObjectId(id) });
-    if (!item) {
-      return res.status(404).json({ error: 'Item not found' });
-    }
-    res.json(item);
-  } catch (err) {
-    console.error('Error fetching item:', err);
-    res.status(500).json({ error: 'Failed to fetch item' });
-  }
-});
-
-// POST a new document to the specified collection
-app.post('/api/:collectionName', async (req, res) => {
+// POST a new task
+app.post('/api/tasks', async (req, res) => {
   try {
     const { text, completed, user } = req.body;
-    const result = await req.collection.insertOne({ text, completed, user });
+    const result = await db.collection('tasks').insertOne({ text, completed, user });
     res.json({ _id: result.insertedId, text, completed, user });
-  } catch (error) {
-    console.error('Error adding item:', error);
-    res.status(500).json({ error: 'Failed to add item' });
+  } catch (err) {
+    console.error('Error adding task:', err);
+    res.status(500).json({ error: 'Failed to add task' });
   }
 });
 
-// PUT (update) a document by ID in the specified collection
-app.put('/api/:collectionName/:id', async (req, res) => {
+// PUT (update) a task by ID
+app.put('/api/tasks/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const updates = req.body;
-    const result = await req.collection.updateOne(
+    const result = await db.collection('tasks').updateOne(
       { _id: new ObjectId(id) },
       { $set: updates }
     );
     res.json({ modifiedCount: result.modifiedCount });
   } catch (err) {
-    console.error('Error updating item:', err);
-    res.status(500).json({ error: 'Failed to update item' });
+    console.error('Error updating task:', err);
+    res.status(500).json({ error: 'Failed to update task' });
   }
 });
 
-// DELETE a document by ID from the specified collection
-app.delete('/api/:collectionName/:id', async (req, res) => {
+// DELETE a task by ID
+app.delete('/api/tasks/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await req.collection.deleteOne({ _id: new ObjectId(id) });
+    const result = await db.collection('tasks').deleteOne({ _id: new ObjectId(id) });
     res.json({ deletedCount: result.deletedCount });
   } catch (err) {
-    console.error('Error deleting item:', err);
-    res.status(500).json({ error: 'Failed to delete item' });
+    console.error('Error deleting task:', err);
+    res.status(500).json({ error: 'Failed to delete task' });
   }
 });
+// #endregion
+
+// #region ======== USERS ROUTES ======== //
+
+// GET all users
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await db.collection('users').find().toArray();
+    res.json(users);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// POST a new user
+app.post('/api/users', async (req, res) => {
+  try {
+    const { text } = req.body;
+    const result = await db.collection('users').insertOne({ text });
+    res.json({ _id: result.insertedId, text });
+  } catch (err) {
+    console.error('Error adding user:', err);
+    res.status(500).json({ error: 'Failed to add user' });
+  }
+});
+
+// DELETE a user by ID
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await db.collection('users').deleteOne({ _id: new ObjectId(id) });
+    res.json({ deletedCount: result.deletedCount });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+// #endregion
+
+// #region ======== IMAGES ROUTES ======== //
+
+// GET all images
+app.get('/api/images', async (req, res) => {
+  try {
+    const images = await db.collection('images').find().toArray();
+    res.json(images);
+  } catch (err) {
+    console.error('Error fetching images:', err);
+    res.status(500).json({ error: 'Failed to fetch images' });
+  }
+});
+
+// GET a single image by ID
+app.get('/api/images/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const image = await db.collection('images').findOne({ _id: new ObjectId(id) });
+
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    // Set the appropriate content type for the image
+    res.set('Content-Type', 'image/png'); // Change to 'image/jpeg' or other types if needed
+    res.send(image.file.buffer); // Send the binary data as the response
+  } catch (err) {
+    console.error('Error fetching image:', err);
+    res.status(500).json({ error: 'Failed to fetch image' });
+  }
+});
+
+// POST route to upload an image
+app.post('/api/images', upload.single('image'), async (req, res) => {
+  try {
+    const { user } = req.body;
+    const { originalname, buffer } = req.file;
+
+    if (!user || !req.file) {
+      return res.status(400).json({ error: 'User or image file is missing' });
+    }
+
+    const result = await db.collection('images').insertOne({
+      name: originalname,
+      user,
+      file: buffer,
+      uploadedAt: new Date()
+    });
+
+    res.json({
+      _id: result.insertedId,
+      name: originalname,
+      user,
+      uploadedAt: new Date()
+    });
+  } catch (err) {
+    console.error('Error uploading image:', err);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
+// DELETE an image by ID
+app.delete('/api/images/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await db.collection('images').deleteOne({ _id: new ObjectId(id) });
+    res.json({ deletedCount: result.deletedCount });
+  } catch (err) {
+    console.error('Error deleting image:', err);
+    res.status(500).json({ error: 'Failed to delete image' });
+  }
+});
+// #endregion
 
 // ======== START THE SERVER ======== //
 

@@ -2,11 +2,6 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  /* specifies to centre over the entire screen height */
-  min-height: 100vh;
-  /* removes the default margin around <body> to not exceed vh */
-  margin: 0;
 }
 
 label {
@@ -40,4 +35,27 @@ li span {
 .completed {
   text-decoration: line-through;
   color: grey;
+}
+
+#gallery {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Use auto-fit to ensure items stretch properly */
+  gap: 10px;
+  width: 100%; /* Ensure the gallery takes up the full width of its container */
+  justify-content: center; /* Center the grid items horizontally */
+  place-items: center; /* Center each grid item within its cell */
+}
+
+.imgBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.imgBox img {
+  width: 150px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
 }

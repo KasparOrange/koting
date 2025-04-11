@@ -53,7 +53,7 @@ loadTasks();
 
 
 const addTask = async () => {
-    const text = taskInput.value; //make conditional on input.value not being empty?
+    const text = taskInput.value;
     taskInput.value = '';
 
     const user = userSelection.value;
