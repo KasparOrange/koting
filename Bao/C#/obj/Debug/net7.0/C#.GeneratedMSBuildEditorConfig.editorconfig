@@ -8,4 +8,4 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = C_
-build_property.ProjectDir = /Users/bao/Library/Mobile Documents/com~apple~CloudDocs/Code/VSC Projects/koting/Bao/C#/
+build_property.ProjectDir = /Users/bao/Code/koting/Bao/C#/

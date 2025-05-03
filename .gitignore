@@ -132,4 +132,3 @@ dist
 # Bao committed this by running "git add ." to add all files to the staging area
 # and it prompted an error message when S pulled the commit
 .DS_Store
-.DS_Store
