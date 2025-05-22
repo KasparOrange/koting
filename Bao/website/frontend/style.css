@@ -1,0 +1,61 @@
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+label {
+  font-size: 0.8rem;
+}
+
+select {
+  margin-top: 1rem;
+}
+
+ul {
+  list-style: none;
+}
+
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+li span {
+  margin-right: 20px;
+}
+
+.deleteButton {
+  color: red;
+}
+
+.completeButton {
+  color: green;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: grey;
+}
+
+#gallery {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Use auto-fit to ensure items stretch properly */
+  gap: 10px;
+  width: 100%; /* Ensure the gallery takes up the full width of its container */
+  justify-content: center; /* Center the grid items horizontally */
+  place-items: center; /* Center each grid item within its cell */
+}
+
+.imgBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.imgBox img {
+  width: 150px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+}

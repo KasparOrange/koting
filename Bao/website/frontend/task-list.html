@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Task List</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div id="nav-placeholder"></div>
+  
+  <main>
+    <h1>Task List</h1>
+
+    <div>
+      <input type="text" id="task-input" placeholder="Add a new task...">
+      <button id="add-task">Add</button>
+    </div>
+    
+    <div>
+        <label>Assign to: </label>
+        <select id="user-selection">
+            <option selected>All users</option>
+        </select>
+    </div>
+        
+    <ul id="task-list"></ul>
+  </main>
+    
+  <script type="module" src="main.js"></script>
+  <script type="module" src="task-list.js"></script>
+</body>
+
+</html>

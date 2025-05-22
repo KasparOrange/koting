@@ -50,6 +50,7 @@
         function insulter() {
             // #region: declaring variables
             let fallback = "Wohnung deiner Mutter";
+            let fallback2 = "Wohnung deines Vaters";
 
             const age = document.getElementById("name").value;
             const ageCategory = parseInt(age) < 30 ? "y" : "o";
@@ -67,6 +68,8 @@
                 position => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
+                    
+                    console.log(lat, lon);
 
                     // Using OpenStreetMap's Nominatim API to determine the closest street to the user's location
                     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
@@ -76,7 +79,7 @@
                             // accessing the JSOn object's address property and its road property
                             street = data.address.road
                                 // OR (if not available):
-                                || fallback;
+                                || fallback2;
 
                             // displaying the insult with the user's location
                             document.getElementById("text").innerHTML =
