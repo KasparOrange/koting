@@ -9,7 +9,7 @@ function fetchUserData(userId, callback) {
     const userData = {
       id: userId,
       name: "Jane Doe",
-      email: "jane@example.com"
+      email: "jane@example.com"cod
     };
     
     // We call the callback function and pass the data
