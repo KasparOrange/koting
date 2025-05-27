@@ -1,0 +1,15 @@
+/Users/bao/Code/koting/Bao/Solution/bin/Debug/net9.0/Project
+/Users/bao/Code/koting/Bao/Solution/bin/Debug/net9.0/Project.deps.json
+/Users/bao/Code/koting/Bao/Solution/bin/Debug/net9.0/Project.runtimeconfig.json
+/Users/bao/Code/koting/Bao/Solution/bin/Debug/net9.0/Project.dll
+/Users/bao/Code/koting/Bao/Solution/bin/Debug/net9.0/Project.pdb
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.GeneratedMSBuildEditorConfig.editorconfig
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.AssemblyInfoInputs.cache
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.AssemblyInfo.cs
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.csproj.CoreCompileInputs.cache
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.sourcelink.json
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.dll
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/refint/Project.dll
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.pdb
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/Project.genruntimeconfig.cache
+/Users/bao/Code/koting/Bao/Solution/obj/Debug/net9.0/ref/Project.dll
