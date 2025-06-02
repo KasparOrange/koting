@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "r7iHzQAEzOI=",
+  "dgSpecHash": "gZ77FgbtECQ=",
   "success": true,
   "projectFilePath": "/Users/bao/Code/koting/Bao/Solution/Project.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/bao/.nuget/packages/questpdf/2025.5.0/questpdf.2025.5.0.nupkg.sha512"
+  ],
   "logs": []
 }

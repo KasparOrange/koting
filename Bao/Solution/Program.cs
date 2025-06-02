@@ -1,6 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using QuestPDF.Companion;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using QuestPDF.Previewer;
 
-//setting up basic c# project
+QuestPDF.Settings.License = LicenseType.Community;
 
 // int age = 23;
 // Console.WriteLine(age);
@@ -46,7 +50,18 @@
 // System.Console.WriteLine("Quotient: " + quotient);
 // System.Console.WriteLine("Remainder: " + remainder);
 
-double money = 10D / 3D;
-Console.WriteLine(string.Format("£{0:0.00}", money));
-Console.WriteLine(money.ToString("C"));
+// double money = 10D / 3D;
+// Console.WriteLine(string.Format("£{0:0.00}", money));
+// Console.WriteLine(money.ToString("C"));
 
+Document.Create(container => 
+    {
+        container.Page(page => 
+        {
+            page.Size(PageSizes.A4);
+
+            page.Content()
+                .Background(Colors.Amber.Accent1);
+        });
+    })
+    .GeneratePdfAndShow();
