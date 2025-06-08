@@ -248,3 +248,6 @@ yarn-error.log*
 # Hot reload
 **/*.Hot.dll
 **/*.Hot.pdb
+
+# for .NET projects
+obj/
