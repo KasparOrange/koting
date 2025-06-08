@@ -2,6 +2,9 @@ using BlazorProject.Components;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using ZXing;
+using ZXing.QrCode;
+using ZXing.Rendering;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -14,7 +17,8 @@ builder.Services.AddRazorComponents()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment()) {
+if (!app.Environment.IsDevelopment()) 
+{
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
@@ -22,45 +26,60 @@ if (!app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapGet("/pdf", () =>
+app.MapGet("/pdf", (string code = "https://noveltyemails.com/fuckyou.com") =>
 {
-    // Generate the PDF document as before
+    if (string.IsNullOrWhiteSpace(code))
+        return Results.BadRequest("Code parameter is required");
+
     var pdf = Document.Create(container => 
     {
         container.Page(page => 
         {
             page.Size(PageSizes.A4);
+
             page.Content()
-                .Background(Colors.Brown.Darken1);
+                .Background(Colors.Brown.Darken1)
+                .Padding(20)
+                .Column(column =>
+                {
+                    column.Item()
+                        .AlignCenter()
+                        .Width(200)
+                        .Height(200)
+                        .Background(Colors.White)
+                        .Svg(size =>
+                        {
+                            var writer = new QRCodeWriter();
+
+                            var qrCode = writer.encode(code, BarcodeFormat.QR_CODE, (int)size.Width, (int)size.Height);
+
+                            var renderer = new SvgRenderer();
+
+                            return renderer.Render(qrCode, BarcodeFormat.QR_CODE, null).Content;
+                        });
+
+                    column.Item()
+                        .PaddingTop(20)
+                        .AlignCenter()
+                        .Text(code)
+                        .FontColor(Colors.White)
+                        .FontSize(16);
+                });
         });
     }).GeneratePdf();
 
-    // Create a response that explicitly tells the browser to display inline
     return Results.Stream(
         stream: new MemoryStream(pdf), 
         contentType: "application/pdf",
-        fileDownloadName: null, // No download name = no download prompt
+        fileDownloadName: null,
         enableRangeProcessing: true
     );
 });
 
 app.Run();
-
-// Document.Create(container => 
-//     {
-//         container.Page(page => 
-//         {
-//             page.Size(PageSizes.A4);
-//
-//             page.Content()
-//                 .Background(Colors.Amber.Accent1);
-//         });
-//     })
-//     .GeneratePdfAndShow();
