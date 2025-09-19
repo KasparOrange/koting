@@ -1,0 +1,21 @@
+<button 
+    @onclick="MyOnClick" 
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</button>
+
+@code {
+    
+    [Parameter]
+    public EventCallback<MouseEventArgs> MyOnClick { get; set; }
+    
+    // [Parameter]
+    // public string ButtonContent { get; set; } = string.Empty;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    
+    [Parameter (CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; } = new();
+    
+}
