@@ -2,12 +2,10 @@ using MongoDB.Driver;
 
 namespace WebAPI;
 
-public class DbContext
-{
+public class DbContext {
     private readonly IMongoDatabase _database; // MongoDB database instance
 
-    public DbContext(IConfiguration configuration) // Constructor takes an IConfiguration object
-    {
+    public DbContext(IConfiguration configuration) { // Constructor takes an IConfiguration object
         var connectionString = configuration.GetSection("Database:Url").Value;
         var databaseName = configuration.GetSection("Database:Name").Value;
 
@@ -15,5 +13,5 @@ public class DbContext
         _database = client.GetDatabase(databaseName); // The GetDatabase method is called on the client, passing the name of the database. This method returns an instance of IMongoDatabase, which is then stored in our _database field
     }
     
-    public IMongoCollection<Pet> Pets => _database.GetCollection<Pet>("Pets"); // Accessing/Creating the "Pets" collection in the database
+    public IMongoCollection<Pet> Pets => _database.GetCollection<Pet>("Pets"); // Creating an accessor for the Pets collection
 }

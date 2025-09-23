@@ -6,8 +6,7 @@ namespace WebAPI;
 public class Pet
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; } = string.Empty;
+    public ObjectId Id { get; set; } = ObjectId.Empty;
 
     public string Name { get; set; } = string.Empty;
     public Breed? Breed { get; set; }
