@@ -11,14 +11,7 @@ var app = builder.Build();
 // Get the logger from DI
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-logger.LogInformation("Application starting...");
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
-    app.MapOpenApi();
-    
-    logger.LogDebug("Development mode - OpenAPI enabled");
-}
+logger.LogInformation("Application starting, mapping endpoints...");
 
 // Map Endpoints
 app.MapGet("/", (ILogger<Program> logger) => {

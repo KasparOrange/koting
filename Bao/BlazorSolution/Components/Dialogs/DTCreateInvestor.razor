@@ -1,0 +1,26 @@
+<MudDialog>
+    <TitleContent>
+        Create Investor
+    </TitleContent>
+
+    <DialogContent>
+        <MudTextField
+            @bind-Value="InvestorName"
+            Label="Enter name"
+            Required
+        />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="@(() => MudDialog.Close(DialogResult.Ok(InvestorName)))">
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    string InvestorName { get; set; } = string.Empty;
+}

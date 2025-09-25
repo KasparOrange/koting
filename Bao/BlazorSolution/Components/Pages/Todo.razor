@@ -1,5 +1,6 @@
 @page "/todo"
 @rendermode InteractiveServer
+@inject ILogger<Todo> Logger
 
 @{
     var PendingTodos = todos.Count(t => !t.IsCompleted);
@@ -27,12 +28,14 @@
  
     public class TodoItem
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; } = false;
     }
 
     private void AddTodo(MouseEventArgs obj) {
+        Logger.LogInformation("Adding new todo: {NewTodoTitle}", newTodoTitle);
+        
          if (!string.IsNullOrWhiteSpace(newTodoTitle)) {
             todos.Add(new TodoItem() {Title = newTodoTitle});
             newTodoTitle = string.Empty;

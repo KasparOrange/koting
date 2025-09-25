@@ -1,0 +1,95 @@
+@page "/"
+@using BlazorProject.Components.Dialogs
+@using BlazorProject.Data
+@using BlazorProject.Services
+@inject IDialogService DialogService
+@inject ILogger<Portfolios> Logger
+@inject InvestorRepository InvestorRepository
+@inject SecurityRepository SecurityRepository
+
+<MudStack Row="true">
+    <h3>Investors</h3>
+    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="OpenDTCreateInvestorAsync"/>
+</MudStack >
+
+<MudDataGrid Items="@(AllInvestors)">
+    <Columns>
+        <PropertyColumn Property="x => x.Name" />
+        <PropertyColumn Property="x => x.CreatedAt" />
+    </Columns>
+</MudDataGrid>
+
+<MudStack Row="true">
+    <h3>Portfolios</h3>
+    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" @onclick="OpenDTCreatePortfolio"/>
+</MudStack >
+
+<MudStack Row="true">
+    <h3>Securities</h3>
+    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" @onclick="OpenDTCreateSecurity"/>
+</MudStack >
+
+<MudDataGrid Items="@(AllSecurities)">
+    <Columns>
+        <PropertyColumn Property="x => x.Name" />
+        <PropertyColumn Property="x => x.ISIN" />
+    </Columns>
+</MudDataGrid>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync() {
+        AllInvestors = await InvestorRepository.GetAllInvestorsAsync();
+        AllSecurities = await SecurityRepository.GetAllSecuritiesAsync();
+    }
+
+    private List<Investor> AllInvestors = [];
+    private List<Security> AllSecurities = [];
+
+    private async Task OpenDTCreateInvestorAsync() {
+        var dialog = await DialogService.ShowAsync<DTCreateInvestor>();
+
+        var result = await dialog.Result;
+
+        if (result is null || result.Canceled || result.Data is not string name) return;
+
+        await InvestorRepository.CreateInvestorAsync(new() { Name = name });
+
+        Logger.LogInformation("Created investor '{name}'", result.Data);
+    }
+
+    private async Task OpenDTCreatePortfolio() {
+        var dialog = await DialogService.ShowAsync<DTCreatePortfolio>(null,
+            new DialogParameters<DTCreatePortfolio> {
+                { x => x.AllInvestors, AllInvestors },
+                { x => x.AllSecurities, AllSecurities }
+            });
+        var result = await dialog.Result;
+
+        if (result is null || result.Canceled || result.Data is not DTCreatePortfolio.ReturnType returnValue) return;
+
+        // await PortfolioRepository.CreatePortfolioAsync(new() {
+            // Name = returnValue.Name,
+            // InvestorId =
+            // Securities = 
+        // });
+
+        Logger.LogInformation("Created security '{name}'", result.Data);
+    }
+
+    private async Task OpenDTCreateSecurity() {
+        var dialog = await DialogService.ShowAsync<DTCreateSecurity>();
+
+        var result = await dialog.Result;
+
+        if (result is null || result.Canceled || result.Data is not DTCreateSecurity.ReturnType returnValue) return;
+
+        await SecurityRepository.CreateSecurityAsync(new() {
+            Name = returnValue.Name,
+            ISIN = returnValue.ISIN
+        });
+
+        Logger.LogInformation("Created security '{name}'", result.Data);
+    }
+}

@@ -1,0 +1,35 @@
+<MudDialog>
+    <TitleContent>
+        Create Security
+    </TitleContent>
+
+    <DialogContent>
+        <MudTextField
+            @bind-Value="Name"
+            Label="Enter name"
+            Required
+        />
+        <MudTextField
+            @bind-Value="ISIN"
+            Label="Enter ISIN"
+            Required
+        />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="@(() => MudDialog.Close(DialogResult.Ok(new ReturnType(Name, ISIN))))">
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+    
+    public record ReturnType(string Name, string ISIN);
+
+    string Name { get; set; } = string.Empty;
+    
+    string ISIN { get; set; } = string.Empty;
+}

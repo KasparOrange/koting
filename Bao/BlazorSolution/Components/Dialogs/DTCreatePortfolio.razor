@@ -1,0 +1,98 @@
+@using System.Security
+@using BlazorProject.Data
+@using MongoDB.Bson
+@using MudExtensions
+
+<MudDialog>
+    <TitleContent>
+        Create Portfolio
+    </TitleContent>
+
+    <DialogContent>
+        <MudTextField
+            @bind-Value="Name"
+            Label="Enter name"
+            Required
+        />
+        <MudSelectExtended
+            ItemCollection="AllInvestors"
+            ToStringFunc="@(investor => investor?.Name)"
+            Label="Select investor"
+            @bind-Value="SelectedInvestor"
+            Required
+        />
+
+        @foreach (var stack in securityStacks) {
+            <MudStack Row="true">
+                <MudSelectExtended
+                    ItemCollection="AllSecurities"
+                    ToStringFunc="@(security => security.Name)"
+                    Label="Select security"
+                    Style="width: 300px"
+                    Required
+                />
+                    @* @bind-Value="SelectedSecurity.SecurityName" *@
+                <div style="width: 80px">
+                    <MudNumericField
+                        HelperText="% of portfolio"
+                        Min="0"
+                        Max="100"
+                        Step="10"
+                        Required
+                    />
+                        @* @bind-Value="SelectedSecurity.Percentage" *@
+                </div>
+            </MudStack>
+        }
+
+        <MudIconButton
+            Icon="@Icons.Material.Filled.Add"
+            Size="Size.Small"
+            OnClick="AddSecurityStack"
+        />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
+        <MudButton
+            Color="Color.Primary"
+            OnClick="@(() => MudDialog.Close(DialogResult.Ok(new ReturnType(Name, SelectedInvestor, Securities))))"
+        >
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    public record ReturnType( string Name, Investor? SelectedInvestor, List<SelectedSecurity> Securities);
+    
+    string Name { get; set; } = string.Empty;
+    
+    private Investor? SelectedInvestor { get; set; }
+    
+    // TODO: Add each selected security with its percentage and correct ObjectId to the list
+    List<SelectedSecurity> Securities { get; set; } = [];
+
+    public class SelectedSecurity {
+        public static string SecurityName { get; set; } = string.Empty;
+
+        public ObjectId SecurityObjectId { get; set; } = ObjectId.Empty;
+
+        public static double Percentage { get; set; }
+    }
+    
+    [Parameter] public List<Investor> AllInvestors { get; set; } = [];
+
+    [Parameter] public List<Security> AllSecurities { get; set; } = [];
+
+    private readonly List<int> securityStacks = [1];
+
+    private void AddSecurityStack() {
+        securityStacks.Add(securityStacks.Count + 1);
+    }
+}
+
+

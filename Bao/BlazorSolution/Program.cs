@@ -1,4 +1,7 @@
 using BlazorProject.Components;
+using BlazorProject.Data;
+using MudBlazor.Services;
+using MudExtensions.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -11,10 +14,24 @@ QuestPDF.Settings.License = LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
+builder.Services
+    .AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Logging.AddSimpleConsole(o => {
+    o.TimestampFormat = "HH:mm:ss.fff ";
+});
+
+builder.Services.AddMudServices();
+builder.Services.AddMudExtensions();
+builder.Services.AddSingleton<DbContext>();
+
+builder.Services.AddSingleton<InvestorRepository>();
+builder.Services.AddSingleton<SecurityRepository>();
+
 var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) 
@@ -25,9 +42,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAntiforgery();
-
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
