@@ -43,13 +43,15 @@ public class InvestorRepository {
         return result.MatchedCount > 0 ? updatedInvestor : null;
     }
     
-    public async Task<Investor?> DeleteInvestorAsync(string id) {
-        _logger.LogInformation("Deleting investor with ID {Id} from the database", id);
+    public async Task<Investor?> DeleteInvestorAsync(Investor investor) {
+        _logger.LogInformation("Deleting investor {name} and their portfolios from the database", investor.Name);
         
-        var deletedInvestor = await _dbContext.Investors.Find(i => i.Id.ToString() == id).FirstOrDefaultAsync();
+        var deletedInvestor = await _dbContext.Investors.Find(i => i.Id == investor.Id).FirstOrDefaultAsync();
         
-        var result = await _dbContext.Investors.DeleteOneAsync(i => i.Id.ToString() == id);
+        await _dbContext.Investors.DeleteOneAsync(i => i.Id == investor.Id);
         
-        return result.DeletedCount > 0 ? deletedInvestor : null;
+        await _dbContext.Portfolios.DeleteManyAsync(p => p.InvestorId == investor.Id);
+        
+        return deletedInvestor;
     }
 }

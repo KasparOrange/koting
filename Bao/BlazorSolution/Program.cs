@@ -28,6 +28,7 @@ builder.Services.AddSingleton<DbContext>();
 
 builder.Services.AddSingleton<InvestorRepository>();
 builder.Services.AddSingleton<SecurityRepository>();
+builder.Services.AddSingleton<PortfolioRepository>();
 
 var app = builder.Build();
 

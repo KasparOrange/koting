@@ -1,6 +1,11 @@
 <MudDialog>
     <TitleContent>
-        Create Investor
+        <MudText
+            Typo="Typo.h5"
+            Align="Align.Center"
+        >
+            Create Investor
+        </MudText>
     </TitleContent>
 
     <DialogContent>
@@ -13,7 +18,10 @@
 
     <DialogActions>
         <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="@(() => MudDialog.Close(DialogResult.Ok(InvestorName)))">
+        <MudButton
+            Color="Color.Primary"
+            OnClick="@(() => MudDialog.Close(DialogResult.Ok(InvestorName)))"
+        >
             OK
         </MudButton>
     </DialogActions>

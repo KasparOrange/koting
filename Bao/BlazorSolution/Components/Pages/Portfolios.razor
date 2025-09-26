@@ -4,35 +4,97 @@
 @using BlazorProject.Services
 @inject IDialogService DialogService
 @inject ILogger<Portfolios> Logger
+@inject ISnackbar Snackbar
 @inject InvestorRepository InvestorRepository
 @inject SecurityRepository SecurityRepository
+@inject PortfolioRepository PortfolioRepository
 
+@* NOTE: Investors *@
 <MudStack Row="true">
-    <h3>Investors</h3>
-    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="OpenDTCreateInvestorAsync"/>
-</MudStack >
+    <h2>Investors</h2>
+    <MudIconButton
+        Icon="@Icons.Material.Filled.Add"
+        Size="Size.Small"
+        OnClick="OpenDTCreateInvestorAsync"
+    />
+</MudStack>
 
 <MudDataGrid Items="@(AllInvestors)">
     <Columns>
-        <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.CreatedAt" />
+        <PropertyColumn Property="x => x.Name"/>
+        <PropertyColumn Property="x => x.CreatedAt"/>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                               Color="Color.Error" 
+                               OnClick="@(() => DeleteInvestor(context.Item!))"/>
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
-<MudStack Row="true">
-    <h3>Portfolios</h3>
-    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" @onclick="OpenDTCreatePortfolio"/>
-</MudStack >
+@* NOTE: Portfolios *@
+<MudStack Row="true" Class="mt-7">
+    <h2>Portfolios</h2>
+    <MudIconButton
+        Icon="@Icons.Material.Filled.Add"
+        Size="Size.Small"
+        @onclick="OpenDTCreatePortfolio"/>
+</MudStack>
 
-<MudStack Row="true">
-    <h3>Securities</h3>
-    <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" @onclick="OpenDTCreateSecurity"/>
-</MudStack >
+<MudDataGrid Items="@(AllPortfolios)">
+    <Columns>
+        <PropertyColumn
+            Property="x => x.Name"
+        />
+        <PropertyColumn
+            Property="x => AllInvestors.FirstOrDefault( i => i.Id == x.InvestorId)!.Name"
+            Title="Investor"
+        />
+        <TemplateColumn Title="Securities Distribution">
+            <CellTemplate Context="portfolio">
+                <MudChart
+                    ChartType="ChartType.Pie"
+                    InputData="@portfolio.Item.SecurityDistribution.Values.ToArray()"
+                    InputLabels="@portfolio.Item.SecurityDistribution.Keys.Select(key => AllSecurities.FirstOrDefault(s => s.Id == key)!.Name).ToArray()"
+                    Width="200"
+                />
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn
+            Property="x => x.CreatedAt"
+        />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                               Color="Color.Error" 
+                               OnClick="@(() => DeletePortfolio(context.Item))"/>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@* NOTE: Securities *@
+<MudStack Row="true" Class="mt-7">
+    <h2>Securities</h2>
+    <MudIconButton
+        Icon="@Icons.Material.Filled.Add"
+        Size="Size.Small"
+        @onclick="OpenDTCreateSecurity"
+    />
+</MudStack>
 
 <MudDataGrid Items="@(AllSecurities)">
     <Columns>
-        <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.ISIN" />
+        <PropertyColumn Property="x => x.Name"/>
+        <PropertyColumn Property="x => x.ISIN"/>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                               Color="Color.Error" 
+                               OnClick="@(() => DeleteSecurity(context.Item))"/>
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
@@ -42,9 +104,11 @@
     protected override async Task OnInitializedAsync() {
         AllInvestors = await InvestorRepository.GetAllInvestorsAsync();
         AllSecurities = await SecurityRepository.GetAllSecuritiesAsync();
+        AllPortfolios = await PortfolioRepository.GetAllPortfoliosAsync();
     }
 
     private List<Investor> AllInvestors = [];
+    private List<Portfolio> AllPortfolios = [];
     private List<Security> AllSecurities = [];
 
     private async Task OpenDTCreateInvestorAsync() {
@@ -54,9 +118,13 @@
 
         if (result is null || result.Canceled || result.Data is not string name) return;
 
-        await InvestorRepository.CreateInvestorAsync(new() { Name = name });
+        var newInvestor = await InvestorRepository.CreateInvestorAsync(new() { Name = name });
 
         Logger.LogInformation("Created investor '{name}'", result.Data);
+        
+        AllInvestors.Add(newInvestor);
+        
+        Snackbar.Add($"Created investor '{newInvestor.Name}'", Severity.Success);
     }
 
     private async Task OpenDTCreatePortfolio() {
@@ -67,15 +135,18 @@
             });
         var result = await dialog.Result;
 
-        if (result is null || result.Canceled || result.Data is not DTCreatePortfolio.ReturnType returnValue) return;
 
-        // await PortfolioRepository.CreatePortfolioAsync(new() {
-            // Name = returnValue.Name,
-            // InvestorId =
-            // Securities = 
-        // });
+        if (result is null || result.Canceled || result.Data is not Portfolio returnedPortfolio) return;
+
+        Logger.LogInformation("Dialog result: {result}", returnedPortfolio);
+
+        var newPortfolio = await PortfolioRepository.CreatePortfolioAsync(returnedPortfolio);
 
         Logger.LogInformation("Created security '{name}'", result.Data);
+        
+        AllPortfolios.Add(newPortfolio);
+        
+        Snackbar.Add($"Created portfolio '{newPortfolio.Name}'", Severity.Success);
     }
 
     private async Task OpenDTCreateSecurity() {
@@ -85,11 +156,62 @@
 
         if (result is null || result.Canceled || result.Data is not DTCreateSecurity.ReturnType returnValue) return;
 
-        await SecurityRepository.CreateSecurityAsync(new() {
+        var newSecurity = await SecurityRepository.CreateSecurityAsync(new() {
             Name = returnValue.Name,
             ISIN = returnValue.ISIN
         });
 
         Logger.LogInformation("Created security '{name}'", result.Data);
+        
+        AllSecurities.Add(newSecurity);
+        
+        Snackbar.Add($"Created security '{newSecurity.Name}'", Severity.Success);
+    }
+
+    private async Task DeleteInvestor(Investor contextItem) {
+        var result = await DialogService.ShowMessageBox(
+            $"Delete investor {contextItem.Name}?", 
+            "This will also delete their portfolios.",
+            cancelText: "Cancel");
+    
+        if (result != true) return;
+        
+        AllInvestors.Remove(contextItem);
+        
+        AllPortfolios.RemoveAll(p => p.InvestorId == contextItem.Id);
+        
+        var removedInvestor = await InvestorRepository.DeleteInvestorAsync(contextItem);
+        
+        Snackbar.Add($"Deleted investor '{removedInvestor.Name}' and their portfolios", Severity.Success);
+    }
+    
+    private async Task DeletePortfolio(Portfolio contextItem) {
+        var result = await DialogService.ShowMessageBox(
+            $"Delete portfolio {contextItem.Name}?", 
+            null,
+            cancelText: "Cancel");
+    
+        if (result != true) return;
+        
+        AllPortfolios.Remove(contextItem);
+        
+        var removedPortfolio = await PortfolioRepository.DeletePortfolioAsync(contextItem);
+        
+        Snackbar.Add($"Deleted portfolio '{removedPortfolio.Name}'", Severity.Success);
+    }
+
+    private async Task DeleteSecurity(Security contextItem) {
+        var result = await DialogService.ShowMessageBox(
+            $"Delete security {contextItem.Name}?", 
+            null,
+            cancelText: "Cancel");
+    
+        if (result != true) return;
+        
+        AllSecurities.Remove(contextItem);
+        
+        var removedSecurity = await SecurityRepository.DeleteSecurityAsync(contextItem);
+        
+        Snackbar.Add($"Deleted security '{removedSecurity.Name}'", Severity.Success);
     }
 }

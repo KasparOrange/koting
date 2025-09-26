@@ -22,8 +22,18 @@ public class SecurityRepository {
     public async Task<Security> CreateSecurityAsync(Security security) {
         await _dbContext.Securities.InsertOneAsync(security);
         
-        _logger.LogInformation("Added security {name} to the database", security.Name);
+        _logger.LogInformation("Added security '{name}' to the database", security.Name);
         
         return security;
+    }
+    
+    public async Task<Security> DeleteSecurityAsync(Security security) {
+        _logger.LogInformation("Deleting security {name} from the database", security.Name);
+        
+        var deletedSecurity = await _dbContext.Securities.Find(s => s.Id == security.Id).FirstOrDefaultAsync();
+        
+        await _dbContext.Securities.DeleteOneAsync(s => s.Id == security.Id);
+        
+        return deletedSecurity;
     }
 }

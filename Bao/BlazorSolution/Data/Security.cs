@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BlazorProject.Data;
 
-public partial class Security {
+public class Security {
     [BsonId]
     public ObjectId Id { get; init; } = ObjectId.Empty;
     public string Name { get; set; } = string.Empty;
