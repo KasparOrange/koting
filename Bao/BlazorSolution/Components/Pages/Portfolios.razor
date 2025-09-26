@@ -1,7 +1,7 @@
 @page "/"
+@using System.Globalization
 @using BlazorProject.Components.Dialogs
 @using BlazorProject.Data
-@using BlazorProject.Services
 @inject IDialogService DialogService
 @inject ILogger<Portfolios> Logger
 @inject ISnackbar Snackbar
@@ -25,21 +25,27 @@
         <PropertyColumn Property="x => x.CreatedAt"/>
         <TemplateColumn>
             <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                               Color="Color.Error" 
-                               OnClick="@(() => DeleteInvestor(context.Item!))"/>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Delete"
+                    Color="Color.Error"
+                    OnClick="@(() => DeleteInvestor(context.Item!))"
+                />
             </CellTemplate>
         </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
 @* NOTE: Portfolios *@
-<MudStack Row="true" Class="mt-7">
+<MudStack
+    Row="true"
+    Class="mt-7"
+>
     <h2>Portfolios</h2>
     <MudIconButton
         Icon="@Icons.Material.Filled.Add"
         Size="Size.Small"
-        @onclick="OpenDTCreatePortfolio"/>
+        @onclick="OpenDTCreatePortfolio"
+    />
 </MudStack>
 
 <MudDataGrid Items="@(AllPortfolios)">
@@ -66,16 +72,21 @@
         />
         <TemplateColumn>
             <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                               Color="Color.Error" 
-                               OnClick="@(() => DeletePortfolio(context.Item))"/>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Delete"
+                    Color="Color.Error"
+                    OnClick="@(() => DeletePortfolio(context.Item))"
+                />
             </CellTemplate>
         </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
 @* NOTE: Securities *@
-<MudStack Row="true" Class="mt-7">
+<MudStack
+    Row="true"
+    Class="mt-7"
+>
     <h2>Securities</h2>
     <MudIconButton
         Icon="@Icons.Material.Filled.Add"
@@ -89,10 +100,27 @@
         <PropertyColumn Property="x => x.Name"/>
         <PropertyColumn Property="x => x.ISIN"/>
         <TemplateColumn>
+            <HeaderTemplate>
+                <MudStack Row="true">
+                    <span>Price [$]</span>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Refresh"
+                        Size="Size.Small"
+                        OnClick="RefreshPrices"
+                    />
+                </MudStack>
+            </HeaderTemplate>
             <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                               Color="Color.Error" 
-                               OnClick="@(() => DeleteSecurity(context.Item))"/>
+                @context.Item!.Price.ToString("C2", CultureInfo.GetCultureInfo("en-US"))
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Delete"
+                    Color="Color.Error"
+                    OnClick="@(() => DeleteSecurity(context.Item))"
+                />
             </CellTemplate>
         </TemplateColumn>
     </Columns>
@@ -121,9 +149,9 @@
         var newInvestor = await InvestorRepository.CreateInvestorAsync(new() { Name = name });
 
         Logger.LogInformation("Created investor '{name}'", result.Data);
-        
+
         AllInvestors.Add(newInvestor);
-        
+
         Snackbar.Add($"Created investor '{newInvestor.Name}'", Severity.Success);
     }
 
@@ -143,9 +171,9 @@
         var newPortfolio = await PortfolioRepository.CreatePortfolioAsync(returnedPortfolio);
 
         Logger.LogInformation("Created security '{name}'", result.Data);
-        
+
         AllPortfolios.Add(newPortfolio);
-        
+
         Snackbar.Add($"Created portfolio '{newPortfolio.Name}'", Severity.Success);
     }
 
@@ -162,56 +190,86 @@
         });
 
         Logger.LogInformation("Created security '{name}'", result.Data);
-        
+
         AllSecurities.Add(newSecurity);
-        
+
         Snackbar.Add($"Created security '{newSecurity.Name}'", Severity.Success);
     }
 
     private async Task DeleteInvestor(Investor contextItem) {
         var result = await DialogService.ShowMessageBox(
-            $"Delete investor {contextItem.Name}?", 
+            $"Delete investor {contextItem.Name}?",
             "This will also delete their portfolios.",
             cancelText: "Cancel");
-    
+
         if (result != true) return;
-        
+
         AllInvestors.Remove(contextItem);
-        
+
         AllPortfolios.RemoveAll(p => p.InvestorId == contextItem.Id);
-        
+
         var removedInvestor = await InvestorRepository.DeleteInvestorAsync(contextItem);
-        
+
         Snackbar.Add($"Deleted investor '{removedInvestor.Name}' and their portfolios", Severity.Success);
     }
-    
+
     private async Task DeletePortfolio(Portfolio contextItem) {
         var result = await DialogService.ShowMessageBox(
-            $"Delete portfolio {contextItem.Name}?", 
+            $"Delete portfolio {contextItem.Name}?",
             null,
             cancelText: "Cancel");
-    
+
         if (result != true) return;
-        
+
         AllPortfolios.Remove(contextItem);
-        
+
         var removedPortfolio = await PortfolioRepository.DeletePortfolioAsync(contextItem);
-        
+
         Snackbar.Add($"Deleted portfolio '{removedPortfolio.Name}'", Severity.Success);
     }
 
     private async Task DeleteSecurity(Security contextItem) {
         var result = await DialogService.ShowMessageBox(
-            $"Delete security {contextItem.Name}?", 
+            $"Delete security {contextItem.Name}?",
             null,
             cancelText: "Cancel");
-    
+
         if (result != true) return;
-        
+
         AllSecurities.Remove(contextItem);
-        
+
         var removedSecurity = await SecurityRepository.DeleteSecurityAsync(contextItem);
-        
+
         Snackbar.Add($"Deleted security '{removedSecurity.Name}'", Severity.Success);
     }
+
+    public record SecurityDto(string Name, string ISIN, double Price);
+
+    private async Task RefreshPrices() {
+        if (AllSecurities.Count == 0) return;
+
+        Logger.LogInformation("Refreshing prices for {count} securities", AllSecurities.Count);
+
+        using var client = new HttpClient();
+
+        var tasks = AllSecurities.Select(async security => {
+            // using a DTO because the ID wasn't recognised properly by the API
+            var dto = new SecurityDto(security.Name, security.ISIN, security.Price);
+
+            var response = await client.PostAsJsonAsync("https://localhost:7209/portfolio/refreshprice", dto);
+
+            var updatedDto = await response.Content.ReadFromJsonAsync<SecurityDto>();
+
+            security.Price = updatedDto!.Price;
+
+            return security;
+        });
+
+        List<Security> returnedSecurities = (await Task.WhenAll(tasks)).ToList()!;
+
+        await SecurityRepository.UpdateAllSecuritiesAsync(returnedSecurities);
+
+        AllSecurities = await SecurityRepository.GetAllSecuritiesAsync();
+    }
+
 }

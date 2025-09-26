@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BlazorProject.Data;
+namespace WebAPI.Data;
 
 public class Security {
     [BsonId]

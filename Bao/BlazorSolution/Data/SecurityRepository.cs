@@ -27,6 +27,17 @@ public class SecurityRepository {
         return security;
     }
     
+    public async Task UpdateAllSecuritiesAsync (List<Security> securities) {
+        foreach (var security in securities) {
+            _logger.LogInformation("Updating security '{name}' in the database, {price}", security.Name, security.Price);
+            
+            var result = await _dbContext.Securities.ReplaceOneAsync(s => s.Id == security.Id, security);
+            
+            _logger. LogInformation("Matched {matched} and modified {modified} documents", result.MatchedCount, result.ModifiedCount);
+        }
+        
+    }
+
     public async Task<Security> DeleteSecurityAsync(Security security) {
         _logger.LogInformation("Deleting security {name} from the database", security.Name);
         

@@ -25,6 +25,7 @@ builder.Logging.AddSimpleConsole(o => {
 builder.Services.AddMudServices();
 builder.Services.AddMudExtensions();
 builder.Services.AddSingleton<DbContext>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddSingleton<InvestorRepository>();
 builder.Services.AddSingleton<SecurityRepository>();

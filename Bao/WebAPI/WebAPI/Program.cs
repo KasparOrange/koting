@@ -20,6 +20,7 @@ app.MapGet("/", (ILogger<Program> logger) => {
 });
 app.MapPetEndpoints();
 app.MapPublicEndpoints();
+app.MapPortfolioEndpoints();
 
 app.UseHttpsRedirection();
 

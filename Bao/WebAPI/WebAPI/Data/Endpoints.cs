@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MongoDB.Driver;
+using WebAPI.Data;
 
 namespace WebAPI;
 
@@ -105,6 +106,22 @@ public static class Endpoints {
                 .GetString();
 
             return responseContentOnly;
+        });
+    }
+
+    public record SecurityDto(string Name, string ISIN, double Price) {
+        public double Price { get; set; } = Price;
+    }
+
+    public static void MapPortfolioEndpoints(this WebApplication app) {
+        var portfolioGroup = app.MapGroup("portfolio").WithTags("Portfolio");
+
+        portfolioGroup.MapPost("/refreshprice", (SecurityDto dto, ILogger<Program> logger) => {
+            dto.Price = dto.Price == 0
+            ? 10 + Random.Shared.NextDouble() * (1000 - 10)
+            : dto.Price + (1 + Random.Shared.Next(-5, 6) / 100.0);
+            
+            return Results.Json(dto);
         });
     }
 }

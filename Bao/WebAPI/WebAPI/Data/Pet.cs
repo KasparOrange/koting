@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace WebAPI;
+namespace WebAPI.Data;
 
 public class Pet
 {
