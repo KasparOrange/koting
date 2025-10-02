@@ -19,7 +19,13 @@
     />
 </MudStack>
 
-<MudDataGrid Items="@(AllInvestors)">
+<MudDataGrid
+    Items="@(AllInvestors)"
+    Hover
+    Striped
+    ColumnResizeMode="ResizeMode.Column"
+    HeaderClass="bao-header"
+>
     <Columns>
         <PropertyColumn Property="x => x.Name"/>
         <PropertyColumn Property="x => x.CreatedAt"/>
@@ -48,7 +54,13 @@
     />
 </MudStack>
 
-<MudDataGrid Items="@(AllPortfolios)">
+<MudDataGrid
+    Items="@(AllPortfolios)"
+    Hover
+    Striped
+    ColumnResizeMode="ResizeMode.Column"
+    HeaderClass="bao-header"
+>
     <Columns>
         <PropertyColumn
             Property="x => x.Name"
@@ -95,14 +107,21 @@
     />
 </MudStack>
 
-<MudDataGrid Items="@(AllSecurities)">
+<MudDataGrid
+    Items="@(AllSecurities)"
+    Hover
+    Striped
+    ColumnResizeMode="ResizeMode.Column"
+    HeaderClass="bao-header"
+>
+    @* Style="background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%)" *@
     <Columns>
         <PropertyColumn Property="x => x.Name"/>
         <PropertyColumn Property="x => x.ISIN"/>
         <TemplateColumn>
             <HeaderTemplate>
                 <MudStack Row="true">
-                    <span>Price [$]</span>
+                    <span>Price</span>
                     <MudIconButton
                         Icon="@Icons.Material.Filled.Refresh"
                         Size="Size.Small"
@@ -271,5 +290,4 @@
 
         AllSecurities = await SecurityRepository.GetAllSecuritiesAsync();
     }
-
 }
