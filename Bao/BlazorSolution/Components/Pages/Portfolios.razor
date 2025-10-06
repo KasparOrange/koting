@@ -76,6 +76,7 @@
                     InputData="@portfolio.Item.SecurityDistribution.Values.ToArray()"
                     InputLabels="@portfolio.Item.SecurityDistribution.Keys.Select(key => AllSecurities.FirstOrDefault(s => s.Id == key)!.Name).ToArray()"
                     Width="200"
+                    ChartOptions="@(new() { ShowLegend = false })"
                 />
             </CellTemplate>
         </TemplateColumn>
@@ -124,9 +125,7 @@
                     <span>Price</span>
                     <MudIconButton
                         Icon="@Icons.Material.Filled.Refresh"
-                        Size="Size.Small"
-                        OnClick="RefreshPrices"
-                    />
+                        Size="Size.Small" OnClick="RefreshPrices"/>
                 </MudStack>
             </HeaderTemplate>
             <CellTemplate>
@@ -171,8 +170,7 @@
 
         AllInvestors.Add(newInvestor);
 
-        Snackbar.Add($"Created investor '{newInvestor.Name}'", Severity.Success);
-    }
+        Snackbar.Add($"Created investor '{newInvestor.Name}'", Severity.Success); }
 
     private async Task OpenDTCreatePortfolio() {
         var dialog = await DialogService.ShowAsync<DTCreatePortfolio>(null,
