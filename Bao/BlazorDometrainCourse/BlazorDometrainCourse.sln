@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorDometrainCourse", "Bl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorDometrainCourse.Client", "BlazorDometrainCourse.Client\BlazorDometrainCourse.Client.csproj", "{978C9FE8-233E-4C18-9FF4-E7F1AC9E1502}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorDometrainCourse.Services", "BlazorDometrainCourse.Services\BlazorDometrainCourse.Services.csproj", "{772DCDDB-05A2-414D-B13A-4DBD7975B209}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{978C9FE8-233E-4C18-9FF4-E7F1AC9E1502}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{978C9FE8-233E-4C18-9FF4-E7F1AC9E1502}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{978C9FE8-233E-4C18-9FF4-E7F1AC9E1502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{772DCDDB-05A2-414D-B13A-4DBD7975B209}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{772DCDDB-05A2-414D-B13A-4DBD7975B209}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{772DCDDB-05A2-414D-B13A-4DBD7975B209}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{772DCDDB-05A2-414D-B13A-4DBD7975B209}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

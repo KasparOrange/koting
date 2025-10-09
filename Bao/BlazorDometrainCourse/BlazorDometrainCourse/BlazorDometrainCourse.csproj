@@ -9,6 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="..\BlazorDometrainCourse.Client\BlazorDometrainCourse.Client.csproj"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.9"/>
+        <ProjectReference Include="..\BlazorDometrainCourse.Services\BlazorDometrainCourse.Services.csproj" />
     </ItemGroup>
 
 </Project>

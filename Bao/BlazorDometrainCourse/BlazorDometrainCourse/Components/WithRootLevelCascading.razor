@@ -1,0 +1,11 @@
+@using BlazorDometrainCourse.Data
+
+@Model.SomeText
+
+<button @onclick="@(() => Model.SomeText = DateTime.Now.ToLongTimeString())">Set time</button>
+<br/>
+
+@code {
+    // This receives the value from the cascading value source in program.cs
+    [CascadingParameter] public required CascadingModel Model { get; set; }
+}
