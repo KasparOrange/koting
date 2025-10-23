@@ -47,6 +47,9 @@ const addUser = async () => {
 addUserBtn.addEventListener('click', addUser);
 
 const deleteUser = async (userid) => {
+    // Ask for confirmation before deleting
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
     const response = await fetch(`${userBase}/${userid}`, {
         method: 'DELETE'
     });

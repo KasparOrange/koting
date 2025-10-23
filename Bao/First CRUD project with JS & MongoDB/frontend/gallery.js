@@ -85,6 +85,9 @@ userDisplay.addEventListener('change', () => {
 });
 
 const deleteImg = async (imgid) => {
+    // Ask for confirmation before deleting
+    if (!confirm("Are you sure you want to delete this image?")) return;
+
     const response = await fetch(`${imgBase}/${imgid}`, {
         method: 'DELETE'
     });

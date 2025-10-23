@@ -73,6 +73,9 @@ const addTask = async () => {
 addTaskBtn.addEventListener('click', addTask);
 
 const deleteTask = async (taskid) => {
+    // Ask for confirmation before deleting
+    if (!confirm("Are you sure you want to delete this task?")) return;
+    
     const response = await fetch(`${taskBase}/${taskid}`, {
         method: 'DELETE'
     });
