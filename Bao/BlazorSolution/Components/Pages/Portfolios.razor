@@ -1,4 +1,4 @@
-@page "/"
+@attribute [Route(PageRoutes.Portfolios)]
 @using System.Globalization
 @using BlazorProject.Components.Dialogs
 @using BlazorProject.Data
@@ -6,7 +6,7 @@
 @inject ILogger<Portfolios> Logger
 @inject ISnackbar Snackbar
 @inject InvestorRepository InvestorRepository
-@inject SecurityRepository SecurityRepository
+@inject AssetRepository AssetRepository
 @inject PortfolioRepository PortfolioRepository
 
 @* NOTE: Investors *@
@@ -69,12 +69,12 @@
             Property="x => AllInvestors.FirstOrDefault( i => i.Id == x.InvestorId)!.Name"
             Title="Investor"
         />
-        <TemplateColumn Title="Securities Distribution">
+        <TemplateColumn Title="Assets Distribution">
             <CellTemplate Context="portfolio">
                 <MudChart
                     ChartType="ChartType.Pie"
-                    InputData="@portfolio.Item.SecurityDistribution.Values.ToArray()"
-                    InputLabels="@portfolio.Item.SecurityDistribution.Keys.Select(key => AllSecurities.FirstOrDefault(s => s.Id == key)!.Name).ToArray()"
+                    InputData="@portfolio.Item.AssetDistribution.Values.ToArray()"
+                    InputLabels="@portfolio.Item.AssetDistribution.Keys.Select(key => AllAssets.FirstOrDefault(s => s.Id == key)!.Name).ToArray()"
                     Width="200"
                     ChartOptions="@(new() { ShowLegend = false })"
                 />
@@ -95,21 +95,21 @@
     </Columns>
 </MudDataGrid>
 
-@* NOTE: Securities *@
+@* NOTE: Assets *@
 <MudStack
     Row="true"
     Class="mt-7"
 >
-    <h2>Securities</h2>
+    <h2>Assets</h2>
     <MudIconButton
         Icon="@Icons.Material.Filled.Add"
         Size="Size.Small"
-        @onclick="OpenDTCreateSecurity"
+        @onclick="OpenDTCreateAsset"
     />
 </MudStack>
 
 <MudDataGrid
-    Items="@(AllSecurities)"
+    Items="@(AllAssets)"
     Hover
     Striped
     ColumnResizeMode="ResizeMode.Column"
@@ -118,6 +118,7 @@
     @* Style="background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%)" *@
     <Columns>
         <PropertyColumn Property="x => x.Name"/>
+        <PropertyColumn Property="x => x.Type"/>
         <PropertyColumn Property="x => x.ISIN"/>
         <TemplateColumn>
             <HeaderTemplate>
@@ -137,7 +138,7 @@
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Delete"
                     Color="Color.Error"
-                    OnClick="@(() => DeleteSecurity(context.Item))"
+                    OnClick="@(() => DeleteAsset(context.Item))"
                 />
             </CellTemplate>
         </TemplateColumn>
@@ -149,13 +150,13 @@
 
     protected override async Task OnInitializedAsync() {
         AllInvestors = await InvestorRepository.GetAllInvestorsAsync();
-        AllSecurities = await SecurityRepository.GetAllSecuritiesAsync();
+        AllAssets = await AssetRepository.GetAllAssetsAsync();
         AllPortfolios = await PortfolioRepository.GetAllPortfoliosAsync();
     }
 
     private List<Investor> AllInvestors = [];
     private List<Portfolio> AllPortfolios = [];
-    private List<Security> AllSecurities = [];
+    private List<Asset> AllAssets = [];
 
     private async Task OpenDTCreateInvestorAsync() {
         var dialog = await DialogService.ShowAsync<DTCreateInvestor>();
@@ -176,7 +177,7 @@
         var dialog = await DialogService.ShowAsync<DTCreatePortfolio>(null,
             new DialogParameters<DTCreatePortfolio> {
                 { x => x.AllInvestors, AllInvestors },
-                { x => x.AllSecurities, AllSecurities }
+                { x => x.AllAssets, AllAssets }
             });
         var result = await dialog.Result;
 
@@ -187,30 +188,31 @@
 
         var newPortfolio = await PortfolioRepository.CreatePortfolioAsync(returnedPortfolio);
 
-        Logger.LogInformation("Created security '{name}'", result.Data);
+        Logger.LogInformation("Created Asset '{name}'", result.Data);
 
         AllPortfolios.Add(newPortfolio);
 
         Snackbar.Add($"Created portfolio '{newPortfolio.Name}'", Severity.Success);
     }
 
-    private async Task OpenDTCreateSecurity() {
-        var dialog = await DialogService.ShowAsync<DTCreateSecurity>();
+    private async Task OpenDTCreateAsset() {
+        var dialog = await DialogService.ShowAsync<DTCreateAsset>();
 
         var result = await dialog.Result;
 
-        if (result is null || result.Canceled || result.Data is not DTCreateSecurity.ReturnType returnValue) return;
+        if (result is null || result.Canceled || result.Data is not DTCreateAsset.ReturnType returnValue) return;
 
-        var newSecurity = await SecurityRepository.CreateSecurityAsync(new() {
+        var newAsset = await AssetRepository.CreateAssetAsync(new() {
             Name = returnValue.Name,
-            ISIN = returnValue.ISIN
+            ISIN = returnValue.ISIN,
+            Type = returnValue.Type,
         });
 
-        Logger.LogInformation("Created security '{name}'", result.Data);
+        Logger.LogInformation("Created asset '{name}'", result.Data);
 
-        AllSecurities.Add(newSecurity);
+        AllAssets.Add(newAsset);
 
-        Snackbar.Add($"Created security '{newSecurity.Name}'", Severity.Success);
+        Snackbar.Add($"Created asset '{newAsset.Name}'", Severity.Success);
     }
 
     private async Task DeleteInvestor(Investor contextItem) {
@@ -245,47 +247,47 @@
         Snackbar.Add($"Deleted portfolio '{removedPortfolio.Name}'", Severity.Success);
     }
 
-    private async Task DeleteSecurity(Security contextItem) {
+    private async Task DeleteAsset(Asset contextItem) {
         var result = await DialogService.ShowMessageBox(
-            $"Delete security {contextItem.Name}?",
+            $"Delete Asset {contextItem.Name}?",
             null,
             cancelText: "Cancel");
 
         if (result != true) return;
 
-        AllSecurities.Remove(contextItem);
+        AllAssets.Remove(contextItem);
 
-        var removedSecurity = await SecurityRepository.DeleteSecurityAsync(contextItem);
+        var removedAsset = await AssetRepository.DeleteAssetAsync(contextItem);
 
-        Snackbar.Add($"Deleted security '{removedSecurity.Name}'", Severity.Success);
+        Snackbar.Add($"Deleted Asset '{removedAsset.Name}'", Severity.Success);
     }
 
-    public record SecurityDto(string Name, string ISIN, double Price);
+    public record AssetDto(string Name, string ISIN, double Price);
 
     private async Task RefreshPrices() {
-        if (AllSecurities.Count == 0) return;
+        if (AllAssets.Count == 0) return;
 
-        Logger.LogInformation("Refreshing prices for {count} securities", AllSecurities.Count);
+        Logger.LogInformation("Refreshing prices for {count} Assets", AllAssets.Count);
 
         using var client = new HttpClient();
 
-        var tasks = AllSecurities.Select(async security => {
+        var tasks = AllAssets.Select(async Asset => {
             // using a DTO because the ID wasn't recognised properly by the API
-            var dto = new SecurityDto(security.Name, security.ISIN, security.Price);
+            var dto = new AssetDto(Asset.Name, Asset.ISIN, Asset.Price);
 
             var response = await client.PostAsJsonAsync("https://localhost:7209/portfolio/refreshprice", dto);
 
-            var updatedDto = await response.Content.ReadFromJsonAsync<SecurityDto>();
+            var updatedDto = await response.Content.ReadFromJsonAsync<AssetDto>();
 
-            security.Price = updatedDto!.Price;
+            Asset.Price = updatedDto!.Price;
 
-            return security;
+            return Asset;
         });
 
-        List<Security> returnedSecurities = (await Task.WhenAll(tasks)).ToList()!;
+        List<Asset> returnedAssets = (await Task.WhenAll(tasks)).ToList()!;
 
-        await SecurityRepository.UpdateAllSecuritiesAsync(returnedSecurities);
+        await AssetRepository.UpdateAllAssetsAsync(returnedAssets);
 
-        AllSecurities = await SecurityRepository.GetAllSecuritiesAsync();
+        AllAssets = await AssetRepository.GetAllAssetsAsync();
     }
 }

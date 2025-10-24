@@ -1,0 +1,17 @@
+// https://developer.mozilla.org/en-US/play?uuid=894c8c53e26a7ff317f2480be6609c81d7e24c2c&state=tVcLTyM3EP4r7lJdEylZOKqr2kCgvKoitRI6UNWqqXTOejZxcew92wtEHP%2B947V34w0b4O5oQEm8nvlm5puHnftkbhciGSX7jN%2BQTFBjxpMkU9JSLkFPkoOJJKS1aam5HmZKlAsZtlFgvntwpcip2t%2FGb%2BFZKVo6ppHGPcFbe5OEME1nMzoV4B7pElD6Fy4ZUaUlt3PQQC4VIl5aJYFws78teG1ouxTezW308%2BUOn0tyodVMgzGv6vaJEgIyS674AoK%2FuVYLcqpTXGoqZxB5%2F7movztSItQ%2FuOFKfgFgLU1IDf0eqOB2GaPbOdTbSjf4X8%2F9KVr4X0i%2FULeg4wj%2BpJJR%2FQX81IiXBc1aeTwyM6rZUyTUn8kgyYzB7poqtiT3TiTH1hrmdMHFckQmyZHmVEySATFUmqEBzfO9iXyYyIlMmy70moybQlDUygXc7bknM1qMyE76TsOiUYoI92pTpRnoEXlb3BGjBGdkK6tee6vdoaaMl2ZE3hUeeUH1jEtU2gkPCsoYl7PoifMCly3DZpOn7suQcY18YrGOiHewIwhCBDd2aOxSwIhI5Lxtfqcz0PmuN2zhzg6xhmfOBEgLuiUeCKHZ9UyrUjKnrpCarfwn9xcR0qILqlcXXd%2Bvs%2FNjeJCV2jjkmabTlgsjigzcgPcklpqifi358wIYp6R3y5mdk33yww6S3vc661XxJLcPFWCKychgrgSrlT6rJnyQiLNVNQmw4YpLhb2BE8MlcNcLYcn%2F6yoe3TQ2%2BGLImDCVlQtMSfqxBL28BD9RjoToTZI4l5Okv%2Bc4CJpprvQZzea9nn%2FQJ%2BODQF61TpH5sxvE%2FQ3LBpAVhHNuqht3eA1ID9zmSouQ7W1yBegaRfqNdSNuWQC5xX8uBDFgiaBYOF6Y5wEhZdTSK5zdJgedOhWTcpmJkoHp1VOk36%2BNEOK1Cl19nkJOS2F7%2FT2%2F%2FVAlx62qN8%2BVb6AXMFVTVCmsCHLLVaButYkcY6m23exUalgPY%2BJF63RPkuB6BxuQ5%2BgiOoij12sukP5GAwk%2FiZi2inCGGDxfYg6qUnKGNqJjRk5x3ZA8QHzPQKDwuWhBsidixbGDzh5Zq%2Fm0tIA6nLXgq7e8lFV34WC8hotVO%2FUCR1cV96EuXTLjlotSmmnA4joT4FZoS%2FDaVqSQVmeTi8KFhFLRXpd4NSzTOfDZ3KKxD9%2FeR16lKs%2BRwl%2Br3Yfi7kOlrsGWWsYovntXcSIpcZyBvCjCMHrHIWc4yzR%2BXuHBAXZvJRa5EhOBQoGF4%2BU5660XWz9CqPsiNHw254Khqb%2Ff%2FhMJwR3ShSP0osV7UGk1kuuiR4RWff4YYlNK37t7wbjLqAvs2J0t%2BPhEcIzPyYbGd1Z86a1hpVYVZL%2BhstL7i7x50y08VdZ108GavBNuBpBPsK9in1mlSW9FKFG5J7bhM6g6H6vG2BDIJuuN5RqAjMedDPVj30iXxGFoymZctiDjgvr0yTexG7NclSaU1CWfCoRcF%2B%2FXs7nlgGeBS7x72WNAmqBXy3UV1eHhkzNgUOs62LCow3iUk5dEX8duUhwKdc%2BcuJw9Ci824FVoUeD066rs5%2BLo%2B3nwSqfw2jSpu%2FspVQHUnSEbTvDz3J3YFH8UIrRLNZd4ruCRXhEDnqVBI%2B5l5Xd46me2pEIsicN3iu4HTrh5NLVWTxp%2F0zLhBqDBXQyYn3D9tTLumvovnj4OoNhYAQ%2FP06WKbqY2XkJip79mQr9C4I7wb6KdNWLjo2xtLDw%2BENptHKkOYg87KO9gvHrD2ywWyALwQivcAZo8%2FAc%3D&srcPrefix=%2Fen-US%2Fdocs%2FWeb%2FAPI%2FHTML_Drag_and_Drop_API%2FKanban_board%2F
+
+export function initialize(draggable, dropZone) {
+    draggable.addEventListener('dragstart', (e) => {
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.appendChild(draggable);
+    });
+}

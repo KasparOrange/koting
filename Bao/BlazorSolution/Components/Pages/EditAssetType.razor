@@ -1,0 +1,132 @@
+@using BlazorProject.Data
+@using Microsoft.VisualBasic.CompilerServices
+@attribute [Route(PageRoutes.Edit_Asset_Type)]
+@inject AssetRepository AssetRepository
+@inject ILogger<EditAssetType> Logger
+@inject IJSRuntime JS
+
+<h2>@nameof(PageRoutes.Edit_Asset_Type).Replace("_", " ")</h2>
+
+<br/>
+
+<h3>With Mud Dropzone</h3>
+
+<MudDropContainer
+    T="Asset"
+    Items="AllAssets"
+    ItemsSelector="@((item, dropzone) => item.Type.ToString() == dropzone)"
+    ItemDropped="ItemUpdatedAsync"
+    Class="d-flex flex-wrap flex-grow-1"
+>
+    <ChildContent>
+        @foreach (var type in Enum.GetValues<AssetType>()) {
+            <MudDropZone
+                T="Asset"
+                Identifier="@type.ToString()"
+                Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1"
+            >
+                <MudText
+                    Typo="Typo.h6"
+                    Class="mb-4"
+                >
+                    @type
+                </MudText>
+            </MudDropZone>
+        }
+    </ChildContent>
+    <ItemRenderer>
+        <MudPaper
+            Elevation="25"
+            Class="pa-4 my-4"
+        >
+            @context.Name
+        </MudPaper>
+    </ItemRenderer>
+</MudDropContainer>
+
+<br/>
+
+<h3>With BlazorSortable</h3>
+
+@foreach (var type in Enum.GetValues<AssetType>()) {
+    <h6>@type</h6>
+
+    <Sortable
+        Items="AllAssets.Where(a => a.Type == type).ToList()"
+        Id="@type.ToString()"
+        Group="Group1"
+        Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1"
+        OnAdd="ItemUpdatedAsync"
+    >
+        <MudPaper
+            Elevation="25"
+            Class="pa-4 my-4"
+        >
+            @context.Name
+        </MudPaper>
+    </Sortable>
+}
+
+<br/>
+
+<h3>With my own JS</h3>
+
+<div style="display: flex; gap: 50px; justify-content: center">
+    <div>
+        <p draggable="true" @ref="draggable">Drag me!</p>
+        @* @foreach (var type in Enum.GetValues<AssetType>()) { *@
+        @*     <p *@
+        @*         draggable="true" *@
+        @*         id="@type.ToString()" *@
+        @*     > *@
+        @*         @type *@
+        @*     </p> *@
+        @* } *@
+    </div>
+
+    <div @ref="dropZone">
+        <h5>Dropzone</h5>
+        <br/>
+    </div>
+</div>
+
+<div style="height: 600px"></div>
+
+@code {
+
+    protected override async Task OnInitializedAsync() {
+        AllAssets = await AssetRepository.GetAllAssetsAsync();
+    }
+
+    private List<Asset> AllAssets = [];
+
+    private async Task ItemUpdatedAsync(MudItemDropInfo<Asset> dropItem) {
+        dropItem.Item.Type = Enum.Parse<AssetType>(dropItem.DropzoneIdentifier);
+
+        await AssetRepository.UpdateAssetAsync(dropItem.Item);
+    }
+
+    private async void ItemUpdatedAsync(SortableEventArgs<Asset> eventArgs) {
+        Logger.LogInformation("Changed type to {type}", eventArgs.To.Id);
+
+        eventArgs.Item.Type = Enum.Parse<AssetType>(eventArgs.To.Id);
+
+        await AssetRepository.UpdateAssetAsync(eventArgs.Item);
+    }
+
+    private ElementReference dropZone;
+
+    private ElementReference draggable;
+
+    private IJSObjectReference? JsObject;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender)
+            return;
+
+        JsObject = await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./Components/Pages/EditAssetType.razor.js");
+
+        await JsObject.InvokeVoidAsync("initialize", draggable, dropZone);
+    }
+}

@@ -11,6 +11,6 @@ public class Portfolio {
     
     // Without this, creating a new object from an ObjectId (in portfolios.razor) isn't possible because to serialise the Dictionary<ObjectId,double> as a BSON document, the keys would have to be strings instead of objectids
     [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] 
-    public Dictionary<ObjectId, double> SecurityDistribution { get; set; } = new();
+    public Dictionary<ObjectId, double> AssetDistribution { get; set; } = new();
     public DateTime CreatedAt { get; set; }
 }

@@ -19,7 +19,9 @@
         <h1
             style="font-family: Herculanum"
             class="mt-3"
-        >Báo's Blazor Project</h1>
+            >
+            Báo's Blazor Project
+        </h1>
         <MudSpacer/>
     </MudAppBar>
     <MudDrawer
@@ -27,11 +29,12 @@
         Variant="DrawerVariant.Temporary"
         ClipMode="DrawerClipMode.Always"
         Style="background-image: linear-gradient(to right, rgb(5, 39, 103), rgb(58, 6, 71) 200%)"
-        Width="120px"
+        Width="150px"
     >
         <MudNavMenu Bordered Style="color:white">
-            <MudNavLink Href="/" Match="NavLinkMatch.All">Portfolio</MudNavLink>
-            <MudNavLink Href="/counter" Match="NavLinkMatch.All">Counter</MudNavLink>
+            <MudNavLink Href="@PageRoutes.Portfolios" Match="NavLinkMatch.All">@nameof(PageRoutes.Portfolios)</MudNavLink>
+            <MudNavLink Href="@PageRoutes.Edit_Asset_Type" Match="NavLinkMatch.All">@nameof(PageRoutes.Edit_Asset_Type).Replace("_", " ")</MudNavLink>
+            <MudNavLink Href="@PageRoutes.Counter" Match="NavLinkMatch.All">@nameof(PageRoutes.Counter)</MudNavLink>
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="pt-16 px-16">

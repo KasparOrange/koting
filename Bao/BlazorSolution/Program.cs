@@ -2,6 +2,7 @@ using BlazorProject.Components;
 using BlazorProject.Data;
 using MudBlazor.Services;
 using MudExtensions.Services;
+using BlazorSortable;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,11 +13,12 @@ builder.Logging.AddSimpleConsole(o => { o.TimestampFormat = "HH:mm:ss.fff "; });
 
 builder.Services.AddSingleton<DbContext>();
 builder.Services.AddSingleton<InvestorRepository>();
-builder.Services.AddSingleton<SecurityRepository>();
+builder.Services.AddSingleton<AssetRepository>();
 builder.Services.AddSingleton<PortfolioRepository>();
 
 builder.Services.AddMudServices();
 builder.Services.AddMudExtensions();
+builder.Services.AddSortable();
 
 builder.Services.AddHttpClient();
 

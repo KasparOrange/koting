@@ -1,15 +1,12 @@
-@using System.Security
 @using BlazorProject.Data
-@using MongoDB.Bson
 @using MudExtensions
-@using _Imports = BlazorProject.Components._Imports
 
 <MudDialog>
     <TitleContent>
         <MudText
             Typo="Typo.h5"
             Align="Align.Center"
-            >
+        >
             Create Portfolio
         </MudText>
     </TitleContent>
@@ -28,21 +25,21 @@
             Required
         />
 
-        @foreach (var selectedSecurity in SelectedSecurityDistribution) {
-            var otherSelectedSecurities = SelectedSecurityDistribution
-                .Where(ss => ss.Security != null)
-                .Select(ss => ss.Security);
+        @foreach (var selectedAsset in SelectedAssetDistribution) {
+            var otherSelectedSecurities = SelectedAssetDistribution
+                .Where(ss => ss.Asset != null)
+                .Select(ss => ss.Asset);
 
-            var availableSecurities = AllSecurities.Except(otherSelectedSecurities).ToList();
+            var availableSecurities = AllAssets.Except(otherSelectedSecurities).ToList();
 
             <MudStack Row="true">
                 <MudSelectExtended
                     ItemCollection="availableSecurities"
-                    ToStringFunc="@(security => security?.Name)"
-                    Label="Select security"
+                    ToStringFunc="@(Asset => Asset?.Name)"
+                    Label="Select Asset"
                     Style="width: 300px"
                     Required
-                    @bind-Value="selectedSecurity.Security"
+                    @bind-Value="selectedAsset.Asset"
                 />
                 <div style="width: 80px">
                     <MudNumericField
@@ -51,7 +48,7 @@
                         Max="100"
                         Step="10"
                         Required
-                        @bind-Value="selectedSecurity.Percentage"
+                        @bind-Value="selectedAsset.Percentage"
                         Immediate
                     />
                 </div>
@@ -61,7 +58,7 @@
         <MudIconButton
             Icon="@Icons.Material.Filled.Add"
             Size="Size.Small"
-            OnClick="AddSecurity"
+            OnClick="AddAsset"
         />
     </DialogContent>
 
@@ -74,7 +71,7 @@
         <MudButton
             Color="Color.Primary"
             Disabled="TotalPercentage != 100"
-            OnClick="@(() => MudDialog.Close(DialogResult.Ok(new Portfolio { Name = Name, InvestorId = SelectedInvestor!.Id, SecurityDistribution = SelectedSecurityDistribution.ToDictionary(x => x.Security!.Id, x => x.Percentage) })))"
+            OnClick="@(() => MudDialog.Close(DialogResult.Ok(new Portfolio { Name = Name, InvestorId = SelectedInvestor!.Id, AssetDistribution = SelectedAssetDistribution.ToDictionary(x => x.Asset!.Id, x => x.Percentage) })))"
         >
             OK
         </MudButton>
@@ -87,29 +84,29 @@
 
     [Parameter] public List<Investor> AllInvestors { get; set; } = [];
 
-    [Parameter] public List<Security> AllSecurities { get; set; } = [];
+    [Parameter] public List<Asset> AllAssets { get; set; } = [];
 
     string Name { get; set; } = string.Empty;
 
     private Investor? SelectedInvestor { get; set; }
 
-    private record SelectedSecurity(Security? Security, double Percentage) {
-        public Security? Security { get; set; } = Security;
+    private record SelectedAsset(Asset? Asset, double Percentage) {
+        public Asset? Asset { get; set; } = Asset;
         public double Percentage { get; set; } = Percentage;
     }
 
-    List<SelectedSecurity> SelectedSecurityDistribution { get; set; } = [];
+    List<SelectedAsset> SelectedAssetDistribution { get; set; } = [];
 
-    private void AddSecurity() {
-        var remainingPercentage = 100 - SelectedSecurityDistribution.Sum(x => x.Percentage);
+    private void AddAsset() {
+        var remainingPercentage = 100 - SelectedAssetDistribution.Sum(x => x.Percentage);
 
-        SelectedSecurityDistribution.Add(new(null, remainingPercentage));
+        SelectedAssetDistribution.Add(new(null, remainingPercentage));
     }
 
     protected override void OnInitialized() {
-        AddSecurity();
+        AddAsset();
         base.OnInitialized();
     }
 
-    private double TotalPercentage => SelectedSecurityDistribution.Sum(x => x.Percentage);
+    private double TotalPercentage => SelectedAssetDistribution.Sum(x => x.Percentage);
 }

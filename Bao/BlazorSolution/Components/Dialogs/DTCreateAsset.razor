@@ -1,0 +1,91 @@
+@using BlazorProject.Data
+
+<MudDialog>
+    <TitleContent>
+        <MudText
+            Typo="Typo.h5"
+            Align="Align.Center"
+        >
+            Create Asset
+        </MudText>
+    </TitleContent>
+
+    <DialogContent>
+        @* <MudForm *@
+        @*     @ref="_form" *@
+        @*     @bind-IsValid="_isValid" *@
+        @*     @bind-Errors="_errorMessages" *@
+        @* > *@
+            <MudTextField
+                @bind-Value="Name"
+                Label="Enter name"
+                Required
+                Immediate
+            />
+        <MudTextField
+            @bind-Value="ISIN"
+            Label="Enter ISIN"
+        />
+        @* Required attribute doesn't work *@
+        <MudSelect
+            Placeholder="Select type*"
+            T="AssetType?"
+            @bind-Value="Type"
+            Required
+            >
+                @foreach (var type in Enum.GetValues<AssetType>()) {
+                    <MudSelectItem T="AssetType?" Value="@type"/>
+                }
+            </MudSelect>
+            @* @foreach (var message in _errorMessages) { *@
+            @*     @message *@
+            @* } *@
+        @* </MudForm> *@
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
+        <MudButton
+            Color="Color.Primary"
+            Disabled="@(Name is "" || Type is null)"
+            OnClick="@(() => {
+                         // await _form.Validate();
+
+                         // if (_isValid) {
+                             MudDialog.Close(DialogResult.Ok(new ReturnType(Name, ISIN, Type!.Value)));
+                         // }
+                         // else {
+                             // Console.WriteLine(string.Join(", ", _errorMessages));
+                         // }
+                     })"
+        >
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    public record ReturnType(string Name, string ISIN, AssetType Type);
+
+    public string Name { get; set; } = string.Empty;
+
+    public string ISIN { get; set; } = string.Empty;
+    
+    private AssetType? Type { get; set; }
+    
+    // private AssetType? _selectedType {
+        // get => Type;
+        // set {
+            // if (value.HasValue) Type = value.Value;
+        @* } *@
+    @* } *@
+
+
+    // private bool _isValid;
+
+    // private string[] _errorMessages = [];
+
+    // private MudForm _form = null!;
+}
