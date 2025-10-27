@@ -1,17 +1,201 @@
-// https://developer.mozilla.org/en-US/play?uuid=894c8c53e26a7ff317f2480be6609c81d7e24c2c&state=tVcLTyM3EP4r7lJdEylZOKqr2kCgvKoitRI6UNWqqXTOejZxcew92wtEHP%2B947V34w0b4O5oQEm8nvlm5puHnftkbhciGSX7jN%2BQTFBjxpMkU9JSLkFPkoOJJKS1aam5HmZKlAsZtlFgvntwpcip2t%2FGb%2BFZKVo6ppHGPcFbe5OEME1nMzoV4B7pElD6Fy4ZUaUlt3PQQC4VIl5aJYFws78teG1ouxTezW308%2BUOn0tyodVMgzGv6vaJEgIyS674AoK%2FuVYLcqpTXGoqZxB5%2F7movztSItQ%2FuOFKfgFgLU1IDf0eqOB2GaPbOdTbSjf4X8%2F9KVr4X0i%2FULeg4wj%2BpJJR%2FQX81IiXBc1aeTwyM6rZUyTUn8kgyYzB7poqtiT3TiTH1hrmdMHFckQmyZHmVEySATFUmqEBzfO9iXyYyIlMmy70moybQlDUygXc7bknM1qMyE76TsOiUYoI92pTpRnoEXlb3BGjBGdkK6tee6vdoaaMl2ZE3hUeeUH1jEtU2gkPCsoYl7PoifMCly3DZpOn7suQcY18YrGOiHewIwhCBDd2aOxSwIhI5Lxtfqcz0PmuN2zhzg6xhmfOBEgLuiUeCKHZ9UyrUjKnrpCarfwn9xcR0qILqlcXXd%2Bvs%2FNjeJCV2jjkmabTlgsjigzcgPcklpqifi358wIYp6R3y5mdk33yww6S3vc661XxJLcPFWCKychgrgSrlT6rJnyQiLNVNQmw4YpLhb2BE8MlcNcLYcn%2F6yoe3TQ2%2BGLImDCVlQtMSfqxBL28BD9RjoToTZI4l5Okv%2Bc4CJpprvQZzea9nn%2FQJ%2BODQF61TpH5sxvE%2FQ3LBpAVhHNuqht3eA1ID9zmSouQ7W1yBegaRfqNdSNuWQC5xX8uBDFgiaBYOF6Y5wEhZdTSK5zdJgedOhWTcpmJkoHp1VOk36%2BNEOK1Cl19nkJOS2F7%2FT2%2F%2FVAlx62qN8%2BVb6AXMFVTVCmsCHLLVaButYkcY6m23exUalgPY%2BJF63RPkuB6BxuQ5%2BgiOoij12sukP5GAwk%2FiZi2inCGGDxfYg6qUnKGNqJjRk5x3ZA8QHzPQKDwuWhBsidixbGDzh5Zq%2Fm0tIA6nLXgq7e8lFV34WC8hotVO%2FUCR1cV96EuXTLjlotSmmnA4joT4FZoS%2FDaVqSQVmeTi8KFhFLRXpd4NSzTOfDZ3KKxD9%2FeR16lKs%2BRwl%2Br3Yfi7kOlrsGWWsYovntXcSIpcZyBvCjCMHrHIWc4yzR%2BXuHBAXZvJRa5EhOBQoGF4%2BU5660XWz9CqPsiNHw254Khqb%2Ff%2FhMJwR3ShSP0osV7UGk1kuuiR4RWff4YYlNK37t7wbjLqAvs2J0t%2BPhEcIzPyYbGd1Z86a1hpVYVZL%2BhstL7i7x50y08VdZ108GavBNuBpBPsK9in1mlSW9FKFG5J7bhM6g6H6vG2BDIJuuN5RqAjMedDPVj30iXxGFoymZctiDjgvr0yTexG7NclSaU1CWfCoRcF%2B%2FXs7nlgGeBS7x72WNAmqBXy3UV1eHhkzNgUOs62LCow3iUk5dEX8duUhwKdc%2BcuJw9Ci824FVoUeD066rs5%2BLo%2B3nwSqfw2jSpu%2FspVQHUnSEbTvDz3J3YFH8UIrRLNZd4ruCRXhEDnqVBI%2B5l5Xd46me2pEIsicN3iu4HTrh5NLVWTxp%2F0zLhBqDBXQyYn3D9tTLumvovnj4OoNhYAQ%2FP06WKbqY2XkJip79mQr9C4I7wb6KdNWLjo2xtLDw%2BENptHKkOYg87KO9gvHrD2ywWyALwQivcAZo8%2FAc%3D&srcPrefix=%2Fen-US%2Fdocs%2FWeb%2FAPI%2FHTML_Drag_and_Drop_API%2FKanban_board%2F
+export function initialize() {
+    const dropZones = document.querySelectorAll('.data-drop-zone');
+    const draggables = document.querySelectorAll('[data-draggable]');
 
-export function initialize(draggable, dropZone) {
-    draggable.addEventListener('dragstart', (e) => {
-        e.dataTransfer.effectAllowed = 'move';
+    dropZones.forEach((dropZone) => {
+        // enable dropping on columns
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        
+        // ondrop: append draggedItem
+        dropZone.addEventListener('drop', (e) => {
+            const draggedElement = document.querySelector('.draggedElement');
+            
+            dropZone.appendChild(draggedElement);
+        })
     });
+    
+    // add temporary id to dragged element
+    draggables.forEach((draggable) => {
+        draggable.addEventListener('dragstart', (e) => {
+            e.dataTransfer.effectAllowed = 'copy'; // why does this not work?
+            draggable.classList.add('draggedElement');
+        })
 
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.appendChild(draggable);
+        draggable.addEventListener("dragend", (e) => {
+            draggable.classList.remove('draggedElement');
+        });
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// NOTE: MDN Code
+    const columns = document.querySelectorAll(".task-column");
+    const tasks = document.querySelectorAll(".task");
+
+    columns.forEach((column) => {
+        // enable dropping on columns
+        column.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        });
+
+        // call movePlaceholder to update placeholder position
+        column.addEventListener("dragover", movePlaceholder);
+
+        // remove the placeholder on dragleave unless it's moving into a child
+        column.addEventListener("dragleave", (event) => {
+            // If we are moving into a child element, we aren't actually leaving the column
+            if (column.contains(event.relatedTarget)) return;
+            const placeholder = column.querySelector(".placeholder");
+            placeholder?.remove();
+        });
+
+        // ondrop: remove task from old position and insert before placeholder, remove placeholder
+        column.addEventListener("drop", (event) => {
+            const draggedTask = document.getElementById("dragged-task");
+            const placeholder = column.querySelector(".placeholder");
+            if (!placeholder) return;
+            draggedTask.remove();
+            column.children[1].insertBefore(draggedTask, placeholder);
+            placeholder.remove();
+        });
+    });
+
+// enable moving tasks and define them as dataTransfer data
+// set an id only for the duration of the drag
+    tasks.forEach((task) => {
+        task.addEventListener("dragstart", (event) => {
+            task.id = "dragged-task";
+            event.dataTransfer.effectAllowed = "move";
+            // Custom type to identify a task drag
+            event.dataTransfer.setData("task", "");
+        });
+
+        task.addEventListener("dragend", (event) => {
+            task.removeAttribute("id");
+        });
+    });
+
+
+    function makePlaceholder(draggedTask) {
+        const placeholder = document.createElement("li");
+        placeholder.classList.add("placeholder");
+        placeholder.style.height = `${draggedTask.offsetHeight}px`;
+        return placeholder;
+    }
+
+    function movePlaceholder(event) {
+        const column = event.currentTarget;
+        const draggedTask = document.getElementById("dragged-task");
+        const tasks = column.children[1];
+        const existingPlaceholder = column.querySelector(".placeholder");
+        if (existingPlaceholder) {
+            const placeholderRect = existingPlaceholder.getBoundingClientRect();
+            if (
+                placeholderRect.top <= event.clientY &&
+                placeholderRect.bottom >= event.clientY
+            ) {
+                return;
+            }
+        }
+        for (const task of tasks.children) {
+            if (task.getBoundingClientRect().bottom >= event.clientY) {
+                if (task === existingPlaceholder) return;
+                existingPlaceholder?.remove();
+                if (task === draggedTask || task.previousElementSibling === draggedTask)
+                    return;
+                tasks.insertBefore(
+                    existingPlaceholder ?? makePlaceholder(draggedTask),
+                    task,
+                );
+                return;
+            }
+        }
+        existingPlaceholder?.remove();
+        if (tasks.lastElementChild === draggedTask) return;
+        tasks.append(existingPlaceholder ?? makePlaceholder(draggedTask));
+    }
+
+// export function initialize(draggable, dropZone) {
+//     // Drag start - when dragging begins
+//     draggable.addEventListener('dragstart', (e) => {
+//         e.dataTransfer.effectAllowed = 'move';
+//         draggable.classList.add('dragging');
+//         console.log('Drag started', { element: draggable , items: e.dataTransfer.items });
+//        
+//         console.log('DataTransferItemCount:', { count: e.dataTransfer.items.length });
+//        
+//         for (const item of e.dataTransfer.items) {
+//             console.log('DataTransferItem:', item);
+//         }
+//     });
+//
+//     // Drag - fires continuously while dragging
+//     draggable.addEventListener('drag', (e) => {
+//         draggable.classList.add('drag-active');
+//         // console.log('Dragging', { x: e.clientX, y: e.clientY });
+//     });
+//
+//     // Drag end - when dragging stops (dropped or cancelled)
+//     draggable.addEventListener('dragend', (e) => {
+//         draggable.classList.remove('dragging', 'drag-active');
+//         dropZone.classList.remove('drag-over', 'drag-entered');
+//         console.log('Drag ended', { x: e.clientX, y: e.clientY });
+//     });
+//
+//     // Drag enter - when draggable first enters drop zone
+//     dropZone.addEventListener('dragenter', (e) => {
+//         e.preventDefault();
+//         dropZone.classList.add('drag-entered');
+//         console.log('Drag entered drop zone', { target: e.target });
+//     });
+//
+//     // Drag over - fires continuously while over drop zone
+//     dropZone.addEventListener('dragover', (e) => {
+//         e.preventDefault();
+//         e.dataTransfer.dropEffect = 'move';
+//         dropZone.classList.add('drag-over');
+//         // console.log('Dragging over drop zone', { x: e.clientX, y: e.clientY });
+//     });
+//
+//     // Drag leave - when draggable leaves drop zone
+//     dropZone.addEventListener('dragleave', (e) => {
+//         e.preventDefault();
+//         dropZone.classList.remove('drag-over', 'drag-entered');
+//         console.log('Drag left drop zone', { target: e.target });
+//     });
+//
+//     // Drop - when dropped on drop zone
+//     dropZone.addEventListener('drop', (e) => {
+//         e.preventDefault();
+//         dropZone.classList.remove('drag-over', 'drag-entered');
+//         dropZone.classList.add('dropped');
+//         console.log('Dropped on drop zone', { x: e.clientX, y: e.clientY });
+//
+//         dropZone.appendChild(draggable);
+//         // e.target.append(draggable);
+//
+//         // Remove dropped class after animation
+//         setTimeout(() => {
+//             dropZone.classList.remove('dropped');
+//             console.log('Drop animation completed');
+//         }, 300);
+//     });
+// }

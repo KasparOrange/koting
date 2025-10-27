@@ -68,3 +68,21 @@ h1:focus {
 .bao-header span {
     color: white !important;
 }
+
+/* REGION START: Drag and Drop */
+
+.dropContainer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+}
+
+.dropZone {
+    border-radius: var(--bs-border-radius) !important;
+    background-color: lightgrey !important;
+    padding: 24px;
+    margin: 32px;
+    flex-grow: 1 !important;
+}
+
+/* REGION END: Drag and Drop */

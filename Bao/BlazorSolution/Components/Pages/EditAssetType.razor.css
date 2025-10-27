@@ -1,0 +1,49 @@
+/*!* Dragging started *!*/
+/*.dragging {*/
+/*    opacity: 0.5;*/
+/*    border: 2px dashed #007bff;*/
+/*    cursor: grabbing;*/
+/*}*/
+
+/*!* Actively being dragged *!*/
+/*.drag-active {*/
+/*    transform: scale(1.05);*/
+/*}*/
+
+/*!* Drop zone when item is dropped *!*/
+/*.dropped {*/
+/*    background-color: #c8e6c9;*/
+/*    border: 2px solid #4caf50;*/
+/*    animation: dropPulse 0.3s ease-in-out;*/
+/*}*/
+
+/*@keyframes dropPulse {*/
+/*    0%, 100% {*/
+/*        transform: scale(1);*/
+/*    }*/
+/*    50% {*/
+/*        transform: scale(1.02);*/
+/*    }*/
+/*}*/
+
+/*!* Drop zone while dragging over *!*/
+/*.drag-over {*/
+/*    animation: backgroundPulseRed 0.5s ease-in-out;*/
+/*    !*animation: borderPulseGreen 1s ease-in-out;*!*/
+/*}*/
+
+/*!* Drop zone when drag enters *!*/
+/*.drag-entered {*/
+/*    !*animation: borderPulseGreen 1s ease-in-out;*!*/
+/*    !*animation: backgroundPulseRed 0.5s ease-in-out;*!*/
+/*}*/
+
+/*@keyframes backgroundPulseGreen {*/
+/*    from { background-color: transparent; }*/
+/*    to { background-color: green; }*/
+/*}*/
+
+/*@keyframes backgroundPulseRed {*/
+/*    from { background-color: transparent; }*/
+/*    to { background-color: red; }*/
+/*}*/
