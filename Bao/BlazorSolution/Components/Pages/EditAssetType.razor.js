@@ -1,6 +1,6 @@
-export function initialize() {
-    const dropZones = document.querySelectorAll('.data-drop-zone');
-    const draggables = document.querySelectorAll('[data-draggable]');
+export function initialize(_dotNetRef) {
+    const dropZones = document.querySelectorAll('[data-asset-type]');
+    const draggables = document.querySelectorAll('[data-asset-name]');
 
     dropZones.forEach((dropZone) => {
         // enable dropping on columns
@@ -9,17 +9,18 @@ export function initialize() {
         });
         
         // ondrop: append draggedItem
-        dropZone.addEventListener('drop', (e) => {
+        dropZone.addEventListener('drop', async (e) => {
             const draggedElement = document.querySelector('.draggedElement');
             
             dropZone.appendChild(draggedElement);
+            
+            await _dotNetRef.invokeMethodAsync("OnItemDroppedAsync", draggedElement.dataset.assetName, dropZone.dataset.assetType);
         })
     });
     
     // add temporary id to dragged element
     draggables.forEach((draggable) => {
         draggable.addEventListener('dragstart', (e) => {
-            e.dataTransfer.effectAllowed = 'copy'; // why does this not work?
             draggable.classList.add('draggedElement');
         })
 

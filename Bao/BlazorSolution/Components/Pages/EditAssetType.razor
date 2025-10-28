@@ -4,6 +4,7 @@
 @inject AssetRepository AssetRepository
 @inject ILogger<EditAssetType> Logger
 @inject IJSRuntime JS
+@implements IDisposable
 
 <h2>@nameof(PageRoutes.Edit_Asset_Type).Replace("_", " ")</h2>
 
@@ -16,7 +17,7 @@
     T="Asset"
     Items="AllAssets"
     ItemsSelector="@((item, dropzone) => item.Type.ToString() == dropzone)"
-    ItemDropped="ItemUpdatedAsync"
+    ItemDropped="OnItemDroppedAsync"
     Class="dropContainer"
 >
     <ChildContent>
@@ -58,7 +59,7 @@
                 Items="AllAssets.Where(a => a.Type == type).ToList()"
                 Id="@type.ToString()"
                 Group="Group1"
-                OnAdd="ItemUpdatedAsync"
+                OnAdd="OnItemDroppedAsync"
             >
                 <MudPaper Elevation="25" Class="pa-4 my-4" >
                     @context.Name
@@ -75,13 +76,13 @@
 
 <div class="dropContainer">
     @foreach (var type in Enum.GetValues<AssetType>()) {
-        <div class="dropZone data-drop-zone" data-dropZone="true" >
+        <div class="dropZone" data-asset-type="@type" >
             <MudText Typo="Typo.h6" Class="mb-4">
                 @type
             </MudText>
 
             @foreach (var asset in AllAssets.Where(a => a.Type == type)) {
-                <div draggable="true" data-draggable >
+                <div draggable="true" data-asset-name="@asset.Name" >
                     <MudPaper Elevation="25" Class="pa-4 my-4" >
                         @asset.Name
                     </MudPaper>
@@ -103,28 +104,52 @@
     private List<Asset> AllAssets = [];
 
     // NOTE: For the Mud Dropzone
-    private async Task ItemUpdatedAsync(MudItemDropInfo<Asset> dropItem) {
+    private async Task OnItemDroppedAsync(MudItemDropInfo<Asset> dropItem) {
         dropItem.Item.Type = Enum.Parse<AssetType>(dropItem.DropzoneIdentifier);
 
         await AssetRepository.UpdateAssetAsync(dropItem.Item);
+        
+        // StateHasChanged(); // not needed, MudDropContainer calls it internally
     }
 
     // NOTE: For BlazorSortable
-    private async void ItemUpdatedAsync(SortableEventArgs<Asset> eventArgs) {
-        Logger.LogInformation("Changed type to {type}", eventArgs.To.Id);
-
+    private async void OnItemDroppedAsync(SortableEventArgs<Asset> eventArgs) {
         eventArgs.Item.Type = Enum.Parse<AssetType>(eventArgs.To.Id);
 
         await AssetRepository.UpdateAssetAsync(eventArgs.Item);
+        
+        await InvokeAsync(StateHasChanged);  // is SignalR better?
     }
 
-    // NOTE: With my own JS
+    // NOTE: My own JS
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<EditAssetType>? _dotNetRef;
+    
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (!firstRender) return;
 
-        var module = await JS.InvokeAsync<IJSObjectReference>(
+        // holds JavaScript interop resources that need cleanup, even if declared within this method
+        _module = await JS.InvokeAsync<IJSObjectReference>(
             "import", "./Components/Pages/EditAssetType.razor.js");
 
-        await module.InvokeVoidAsync("initialize");
+        // creates a GC root that prevents garbage collection and causes memory leaks if not disposed
+        // even if declared within this method
+        _dotNetRef = DotNetObjectReference.Create(this);
+        
+        await _module.InvokeVoidAsync("initialize", _dotNetRef);
+    }
+
+    [JSInvokable]
+    public async Task OnItemDroppedAsync(string assetName, string assetType) {
+        await AssetRepository.UpdateAssetByNameAsync(assetName, assetType);
+
+        await InvokeAsync(StateHasChanged);  // doesn't work
+    }
+
+    // is called automatically when the user navigates away from the page, if IDisposable is implemented
+    public void Dispose() { 
+        _module?.DisposeAsync();
+        
+        _dotNetRef?.Dispose();
     }
 }
