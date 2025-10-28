@@ -71,6 +71,11 @@ h1:focus {
 
 /* REGION START: Drag and Drop */
 
+.mud-dropzone {
+    border-color: green;
+    opacity: 0.5;
+}
+
 .dropContainer {
     display: flex;
     flex-wrap: wrap;
@@ -83,6 +88,15 @@ h1:focus {
     padding: 24px;
     margin: 32px;
     flex-grow: 1 !important;
+}
+
+.draggedElement {
+    opacity: 0.2;
+}
+
+.placeholder {
+    background-color: white;
+    opacity: 0.2;
 }
 
 /* REGION END: Drag and Drop */

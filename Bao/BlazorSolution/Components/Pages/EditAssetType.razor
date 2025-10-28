@@ -19,6 +19,7 @@
     ItemsSelector="@((item, dropzone) => item.Type.ToString() == dropzone)"
     ItemDropped="OnItemDroppedAsync"
     Class="dropContainer"
+    CanDropClass="mud-dropzone"
 >
     <ChildContent>
         @foreach (var type in Enum.GetValues<AssetType>()) {
@@ -61,7 +62,7 @@
                 Group="Group1"
                 OnAdd="OnItemDroppedAsync"
             >
-                <MudPaper Elevation="25" Class="pa-4 my-4" >
+                <MudPaper Elevation="25" Class="pa-4 my-4" Style="cursor: grab;" >
                     @context.Name
                 </MudPaper>
             </Sortable>
@@ -82,7 +83,7 @@
             </MudText>
 
             @foreach (var asset in AllAssets.Where(a => a.Type == type)) {
-                <div draggable="true" data-asset-name="@asset.Name" >
+                <div draggable="true" data-asset-name="@asset.Name" data-asset-type="@asset.Type" style="cursor: grab;" >
                     <MudPaper Elevation="25" Class="pa-4 my-4" >
                         @asset.Name
                     </MudPaper>
@@ -108,7 +109,7 @@
         dropItem.Item.Type = Enum.Parse<AssetType>(dropItem.DropzoneIdentifier);
 
         await AssetRepository.UpdateAssetAsync(dropItem.Item);
-        
+
         // StateHasChanged(); // not needed, MudDropContainer calls it internally
     }
 
@@ -117,14 +118,14 @@
         eventArgs.Item.Type = Enum.Parse<AssetType>(eventArgs.To.Id);
 
         await AssetRepository.UpdateAssetAsync(eventArgs.Item);
-        
-        await InvokeAsync(StateHasChanged);  // is SignalR better?
+
+        await InvokeAsync(StateHasChanged); // is SignalR better?
     }
 
     // NOTE: My own JS
     private IJSObjectReference? _module;
     private DotNetObjectReference<EditAssetType>? _dotNetRef;
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (!firstRender) return;
 
@@ -135,7 +136,7 @@
         // creates a GC root that prevents garbage collection and causes memory leaks if not disposed
         // even if declared within this method
         _dotNetRef = DotNetObjectReference.Create(this);
-        
+
         await _module.InvokeVoidAsync("initialize", _dotNetRef);
     }
 
@@ -143,13 +144,13 @@
     public async Task OnItemDroppedAsync(string assetName, string assetType) {
         await AssetRepository.UpdateAssetByNameAsync(assetName, assetType);
 
-        await InvokeAsync(StateHasChanged);  // doesn't work
+        await InvokeAsync(StateHasChanged); // doesn't work
     }
 
     // is called automatically when the user navigates away from the page, if IDisposable is implemented
-    public void Dispose() { 
+    public void Dispose() {
         _module?.DisposeAsync();
-        
+
         _dotNetRef?.Dispose();
     }
 }

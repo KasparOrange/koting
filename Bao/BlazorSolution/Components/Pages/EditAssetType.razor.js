@@ -1,24 +1,8 @@
 export function initialize(_dotNetRef) {
-    const dropZones = document.querySelectorAll('[data-asset-type]');
+    const dropZones = document.querySelectorAll('.dropZone[data-asset-type]');
     const draggables = document.querySelectorAll('[data-asset-name]');
 
-    dropZones.forEach((dropZone) => {
-        // enable dropping on columns
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-        
-        // ondrop: append draggedItem
-        dropZone.addEventListener('drop', async (e) => {
-            const draggedElement = document.querySelector('.draggedElement');
-            
-            dropZone.appendChild(draggedElement);
-            
-            await _dotNetRef.invokeMethodAsync("OnItemDroppedAsync", draggedElement.dataset.assetName, dropZone.dataset.assetType);
-        })
-    });
-    
-    // add temporary id to dragged element
+    // add temporary class to the dragged element (dragstart to dragend)
     draggables.forEach((draggable) => {
         draggable.addEventListener('dragstart', (e) => {
             draggable.classList.add('draggedElement');
@@ -28,111 +12,158 @@ export function initialize(_dotNetRef) {
             draggable.classList.remove('draggedElement');
         });
     });
-}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// NOTE: MDN Code
-    const columns = document.querySelectorAll(".task-column");
-    const tasks = document.querySelectorAll(".task");
-
-    columns.forEach((column) => {
+    dropZones.forEach((dropZone) => {
         // enable dropping on columns
-        column.addEventListener("dragover", (event) => {
-            event.preventDefault();
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
         });
 
-        // call movePlaceholder to update placeholder position
-        column.addEventListener("dragover", movePlaceholder);
+        // show placeholder on entering the drop zone
+        dropZone.addEventListener('dragenter', (e) => {
+            console.log(`Drag entered drop zone: ${dropZone.dataset.assetType}`);
+            
+            const draggedElement = document.querySelector('.draggedElement');
 
-        // remove the placeholder on dragleave unless it's moving into a child
-        column.addEventListener("dragleave", (event) => {
-            // If we are moving into a child element, we aren't actually leaving the column
-            if (column.contains(event.relatedTarget)) return;
-            const placeholder = column.querySelector(".placeholder");
+            // don't show the placeholder if it's the original drop zone
+            if (dropZone.dataset.assetType === draggedElement.dataset.assetType) return;
+
+            showPlaceholder(e);
+        });
+
+        // remove placeholder on leaving the drop zone
+        dropZone.addEventListener('dragleave', (e) => {
+            console.log(`Drag left drop zone: ${dropZone.dataset.assetType}`);
+            
+            const placeholder = dropZone.querySelector('.placeholder');
+            
             placeholder?.remove();
         });
 
-        // ondrop: remove task from old position and insert before placeholder, remove placeholder
-        column.addEventListener("drop", (event) => {
-            const draggedTask = document.getElementById("dragged-task");
-            const placeholder = column.querySelector(".placeholder");
-            if (!placeholder) return;
-            draggedTask.remove();
-            column.children[1].insertBefore(draggedTask, placeholder);
-            placeholder.remove();
-        });
+        // ondrop: remove placeholder, append draggedItem, call db update via Blazor
+        dropZone.addEventListener('drop', async (e) => {
+            const draggedElement = document.querySelector('.draggedElement');
+            const placeholder = dropZone.querySelector('.placeholder');
+
+            // don't allow drop for same type
+            if (dropZone.dataset.assetType === draggedElement.dataset.assetType) return;
+
+            // remove placeholder
+            placeholder?.remove();
+
+            dropZone.appendChild(draggedElement);
+
+            await _dotNetRef.invokeMethodAsync("OnItemDroppedAsync", draggedElement.dataset.assetName, dropZone.dataset.assetType);
+        })
     });
 
-// enable moving tasks and define them as dataTransfer data
-// set an id only for the duration of the drag
-    tasks.forEach((task) => {
-        task.addEventListener("dragstart", (event) => {
-            task.id = "dragged-task";
-            event.dataTransfer.effectAllowed = "move";
-            // Custom type to identify a task drag
-            event.dataTransfer.setData("task", "");
-        });
-
-        task.addEventListener("dragend", (event) => {
-            task.removeAttribute("id");
-        });
-    });
-
-
-    function makePlaceholder(draggedTask) {
-        const placeholder = document.createElement("li");
+    function createPlaceholder(draggedElement, dropZone) {
+        const placeholder = document.createElement("div");
         placeholder.classList.add("placeholder");
-        placeholder.style.height = `${draggedTask.offsetHeight}px`;
+        placeholder.style.height = `${draggedElement.offsetHeight}px`;
+        placeholder.style.width = `${draggedElement.offsetWidth}px`;
         return placeholder;
     }
 
-    function movePlaceholder(event) {
-        const column = event.currentTarget;
-        const draggedTask = document.getElementById("dragged-task");
-        const tasks = column.children[1];
-        const existingPlaceholder = column.querySelector(".placeholder");
-        if (existingPlaceholder) {
-            const placeholderRect = existingPlaceholder.getBoundingClientRect();
-            if (
-                placeholderRect.top <= event.clientY &&
-                placeholderRect.bottom >= event.clientY
-            ) {
-                return;
-            }
-        }
-        for (const task of tasks.children) {
-            if (task.getBoundingClientRect().bottom >= event.clientY) {
-                if (task === existingPlaceholder) return;
-                existingPlaceholder?.remove();
-                if (task === draggedTask || task.previousElementSibling === draggedTask)
-                    return;
-                tasks.insertBefore(
-                    existingPlaceholder ?? makePlaceholder(draggedTask),
-                    task,
-                );
-                return;
-            }
-        }
-        existingPlaceholder?.remove();
-        if (tasks.lastElementChild === draggedTask) return;
-        tasks.append(existingPlaceholder ?? makePlaceholder(draggedTask));
+    function showPlaceholder(e) {
+        const dropZone = e.currentTarget;
+        const draggedElement = document.querySelector('.draggedElement');
+        const placeholder = dropZone.querySelector('.placeholder');
+
+        // return if there's already a placeholder
+        if (placeholder) return;
+
+        dropZone.appendChild(createPlaceholder(draggedElement, dropZone));
     }
+}
+
+
+// NOTE: MDN Code
+const columns = document.querySelectorAll(".task-column");
+const tasks = document.querySelectorAll(".task");
+
+columns.forEach((column) => {
+    // enable dropping on columns
+    column.addEventListener("dragover", (event) => {
+        event.preventDefault();
+    });
+
+    // call movePlaceholder to update placeholder position
+    column.addEventListener("dragover", movePlaceholder);
+
+    // remove the placeholder on dragleave unless it's moving into a child
+    column.addEventListener("dragleave", (event) => {
+        // If we are moving into a child element, we aren't actually leaving the column
+        if (column.contains(event.relatedTarget)) return;
+        const placeholder = column.querySelector(".placeholder");
+        placeholder?.remove();
+    });
+
+    // ondrop: remove task from old position and insert before placeholder, remove placeholder
+    column.addEventListener("drop", (event) => {
+        const draggedTask = document.getElementById("dragged-task");
+        const placeholder = column.querySelector(".placeholder");
+        if (!placeholder) return;
+        draggedTask.remove();
+        column.children[1].insertBefore(draggedTask, placeholder);
+        placeholder.remove();
+    });
+});
+
+// enable moving tasks and define them as dataTransfer data
+// set an id only for the duration of the drag
+tasks.forEach((task) => {
+    task.addEventListener("dragstart", (event) => {
+        task.id = "dragged-task";
+        event.dataTransfer.effectAllowed = "move";
+        // Custom type to identify a task drag
+        event.dataTransfer.setData("task", "");
+    });
+
+    task.addEventListener("dragend", (event) => {
+        task.removeAttribute("id");
+    });
+});
+
+
+function makePlaceholder(draggedTask) {
+    const placeholder = document.createElement("li");
+    placeholder.classList.add("placeholder");
+    placeholder.style.height = `${draggedTask.offsetHeight}px`;
+    return placeholder;
+}
+
+function movePlaceholder(event) {
+    const column = event.currentTarget;
+    const draggedTask = document.getElementById("dragged-task");
+    const tasks = column.children[1];
+    const existingPlaceholder = column.querySelector(".placeholder");
+    if (existingPlaceholder) {
+        const placeholderRect = existingPlaceholder.getBoundingClientRect();
+        if (
+            placeholderRect.top <= event.clientY &&
+            placeholderRect.bottom >= event.clientY
+        ) {
+            return;
+        }
+    }
+    for (const task of tasks.children) {
+        if (task.getBoundingClientRect().bottom >= event.clientY) {
+            if (task === existingPlaceholder) return;
+            existingPlaceholder?.remove();
+            if (task === draggedTask || task.previousElementSibling === draggedTask)
+                return;
+            tasks.insertBefore(
+                existingPlaceholder ?? makePlaceholder(draggedTask),
+                task,
+            );
+            return;
+        }
+    }
+    existingPlaceholder?.remove();
+    if (tasks.lastElementChild === draggedTask) return;
+    tasks.append(existingPlaceholder ?? makePlaceholder(draggedTask));
+}
 
 // export function initialize(draggable, dropZone) {
 //     // Drag start - when dragging begins
