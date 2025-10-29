@@ -1,3 +1,4 @@
+using BlazorProject.Services;
 using MongoDB.Driver;
 
 namespace BlazorProject.Data;
@@ -7,10 +8,13 @@ public class AssetRepository {
     private readonly ILogger<AssetRepository> _logger;
 
     private readonly DbContext _db;
+    
+    private readonly INotificationService _notificationService;
 
-    public AssetRepository(ILogger<AssetRepository> logger, DbContext dbContext) {
+    public AssetRepository(ILogger<AssetRepository> logger, DbContext dbContext, INotificationService notificationService) {
         _logger = logger;
         _db = dbContext;
+        _notificationService = notificationService;
     }
     
     public async Task<List<Asset>> GetAllAssetsAsync() {
@@ -50,6 +54,8 @@ public class AssetRepository {
         asset.Type = Enum.Parse<AssetType>(type);
         
         await _db.Assets.ReplaceOneAsync(a => a.Name == name, asset);
+        
+        await _notificationService.SendNotificationAsync(asset);
         
         _logger.LogInformation("Updated type of asset '{name}' to '{type}'.", asset.Name, asset.Type);
     }

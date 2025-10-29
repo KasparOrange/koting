@@ -1,9 +1,13 @@
-@using BlazorProject.Data
-@using Microsoft.VisualBasic.CompilerServices
 @attribute [Route(PageRoutes.Edit_Asset_Type)]
+
+@using BlazorProject.Data
+@using BlazorProject.Services
+
 @inject AssetRepository AssetRepository
 @inject ILogger<EditAssetType> Logger
 @inject IJSRuntime JS
+@inject INotificationService _notificationService
+
 @implements IDisposable
 
 <h2>@nameof(PageRoutes.Edit_Asset_Type).Replace("_", " ")</h2>
@@ -100,6 +104,8 @@
 
     protected override async Task OnInitializedAsync() {
         AllAssets = await AssetRepository.GetAllAssetsAsync();
+
+        _notificationService.AssetChanged += OnAssetChanged;
     }
 
     private List<Asset> AllAssets = [];
@@ -146,11 +152,18 @@
 
         await InvokeAsync(StateHasChanged); // doesn't work
     }
+    
+    private async void OnAssetChanged(Asset asset) {
+        AllAssets = await AssetRepository.GetAllAssetsAsync();
+        await InvokeAsync(StateHasChanged);
+    }
 
     // is called automatically when the user navigates away from the page, if IDisposable is implemented
     public void Dispose() {
         _module?.DisposeAsync();
 
         _dotNetRef?.Dispose();
+        
+        _notificationService.AssetChanged -= OnAssetChanged;
     }
 }
