@@ -1,5 +1,7 @@
-﻿@attribute [Route(PageRoutes.Counter)]
+﻿@using BlazorProject.Services
+@attribute [Route(PageRoutes.Counter)]
 @rendermode InteractiveServer
+@inject ILogger<Counter> Logger
 
 <PageTitle>Counter</PageTitle>
 
@@ -12,14 +14,14 @@
         class="btn btn-primary"
         @onclick="IncrementCount"
     >
-    Click
+        Click
     </button>
 
     <MyButton
         MyOnClick="IncrementCount"
         class="btn btn-success"
     >
-    Childcontent whatever special
+        The button's child content
     </MyButton>
 }
 else {
@@ -36,6 +38,27 @@ else {
     <button @onclick="OnClick">Clear</button>
     <p>@text</p>
     <p>@searchResults</p>
+</div>
+
+<MudForm>
+    <MudSelect
+        T="string"
+        Required
+        @bind-Value="Selection"
+    >
+        <MudSelectItem Value="@("Option 1")"/>
+        <MudSelectItem Value="@("Option 2")"/>
+    </MudSelect>
+
+    <MudButton
+        OnClick="@SetOptionFromSelection"
+    >
+        Submit
+    </MudButton>
+</MudForm>
+
+<div>
+    You selected: @(string.IsNullOrEmpty(selectedOption.Name) ? "nothing" : selectedOption.Name)
 </div>
 
 @code {
@@ -57,6 +80,21 @@ else {
         searchResults = $"You searched for {text}";
         await Task.Delay(500);
         searchResults = $"Found {(Random.Shared.Next(2).Equals(1) ? "some" : "no")} results.";
+    }
+
+    private string Selection = string.Empty;
+
+    private Option selectedOption = new();
+
+    // This method is possible to run even if nothing is selected because Selection is initialized to an empty string
+    // and then the Option object has an empty string as Name.
+    private void SetOptionFromSelection() {
+        Logger.LogInformation("Setting option from selection: {Selection}", Selection);
+        selectedOption = new() { Name = Selection };
+    }
+
+    private class Option {
+        public string Name { get; set; } = string.Empty;
     }
 
 }
