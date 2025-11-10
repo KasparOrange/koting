@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -9,5 +10,6 @@ public class Asset {
     public string Name { get; set; } = string.Empty;
     public string ISIN { get; set; } = string.Empty;
     public double Price { get; set; }
+    [Range(1, int.MaxValue, ErrorMessage = "Please specify the asset type")]
     public AssetType Type { get; set; }
 }

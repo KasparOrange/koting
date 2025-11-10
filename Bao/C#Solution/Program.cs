@@ -1,10 +1,8 @@
-﻿
+﻿using System.Diagnostics.CodeAnalysis;
 
-using System.Text.Json;
+Console.WriteLine("Build successful \n");
 
-string test = "Build successful.";
-Console.WriteLine(test);
-Console.WriteLine(int.MaxValue);
+// Console.WriteLine(int.MaxValue);
 // Console.WriteLine(int.MinValue);
 
 // long bigNumber = -1234567890123456789L;
@@ -61,3 +59,49 @@ Console.WriteLine(int.MaxValue);
 // };
 //
 // Console.WriteLine(JsonSerializer.Serialize(variables));
+
+// #nullable disable
+
+// string s1 = null;
+// Console.WriteLine(s1.Length);
+//
+//
+// // initialising an empty array to avoid initialisation to null,
+// // which would make it a nullable array
+// Vehicle[] vehicles = [];
+// Vehicle defaultVehicle = new(-1, "Not found", "not found");
+//
+// // using ElementAtOrDefault to avoid IndexOutOfRangeException
+// // and null-coalescing operator to provide a default value instead of null
+// Vehicle car = vehicles.ElementAtOrDefault(0) ?? defaultVehicle;
+//
+// Console.WriteLine($"Model: {car.Model} ");
+//
+// internal record Vehicle(int Id, string Model, string Color);
+
+// var instance = new MyClass();
+// Console.WriteLine(instance.MyProperty);
+//
+// var instanceWithParam = new MyClass("I was passed in");
+// Console.WriteLine(instanceWithParam.MyProperty);
+//
+// public class MyClass {
+//     public MyClass() {
+//         MyProperty = "I got set in the constructor";
+//     }
+//
+//     public MyClass(string myProperty) {
+//         MyProperty = myProperty;
+//     }
+//     public void MyMethod() {
+//         Console.WriteLine("Hello from MyMethod");
+//     }
+//     
+//     public string MyProperty { get; set; } = "I am empty";
+// }
+
+List<object> myList = ["Hello", null, new { Name = "John", Age = 30 }, 42];
+
+foreach (var item in myList.Where(item => item is string)) {
+    Console.WriteLine(item);
+}

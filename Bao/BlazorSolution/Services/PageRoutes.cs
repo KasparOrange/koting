@@ -1,4 +1,4 @@
-namespace BlazorProject;
+namespace BlazorProject.Services;
 
 public class PageRoutes {
     public const string Portfolios = "/portfolios";

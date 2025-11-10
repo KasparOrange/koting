@@ -1,6 +1,7 @@
 namespace BlazorProject.Data;
 
 public enum AssetType {
+    Unspecified,
     Stock,
     Bond,
     Fund,
