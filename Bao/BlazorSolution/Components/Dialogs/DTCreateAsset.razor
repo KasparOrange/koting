@@ -15,21 +15,21 @@
             @ref="_form"
         >
             <MudTextField
-                @bind-Value="Name"
+                @bind-Value="NewAsset.Name"
                 Label="Enter name"
                 Required
                 Immediate
             />
             
             <MudTextField
-                @bind-Value="ISIN"
+                @bind-Value="NewAsset.ISIN"
                 Label="Enter ISIN"
             />
             
             <MudSelect
                 Placeholder="Select type*"
                 T="AssetType"
-                @bind-Value="Type"
+                @bind-Value="NewAsset.Type"
                 Validation="@((AssetType value) => (int)value == 0 ? "Please specify the asset type" : null)"
             >
                 @foreach (var type in Enum.GetValues<AssetType>()) {
@@ -51,7 +51,7 @@
                          _form.Validate();
 
                          if (_form.IsValid) {
-                             MudDialog.Close(DialogResult.Ok(new ReturnType(Name, ISIN, Type)));
+                             MudDialog.Close(DialogResult.Ok(new ReturnType(NewAsset)));
                          }
                      })"
         >
@@ -62,14 +62,10 @@
 
 @code {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+    
+    public Asset NewAsset { get; set; } = new();
 
-    public record ReturnType(string Name, string ISIN, AssetType Type);
-
-    public string Name { get; set; } = string.Empty;
-
-    public string ISIN { get; set; } = string.Empty;
-
-    private AssetType Type { get; set; }
+    public record ReturnType(Asset Asset);
 
     private MudForm _form = null!;
 }

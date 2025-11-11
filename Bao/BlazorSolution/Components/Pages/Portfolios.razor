@@ -203,11 +203,7 @@
 
         if (result is null || result.Canceled || result.Data is not DTCreateAsset.ReturnType returnValue) return;
 
-        var newAsset = await AssetRepository.CreateAssetAsync(new() {
-            Name = returnValue.Name,
-            ISIN = returnValue.ISIN,
-            Type = returnValue.Type,
-        });
+        var newAsset = await AssetRepository.CreateAssetAsync(returnValue.Asset);
 
         Logger.LogInformation("Created asset '{name}'", result.Data);
 

@@ -12,66 +12,88 @@
     </TitleContent>
 
     <DialogContent>
-        <MudTextField
-            @bind-Value="Name"
-            Label="Enter name"
-            Required
-        />
-        <MudSelectExtended
-            ItemCollection="AllInvestors"
-            ToStringFunc="@(investor => investor?.Name)"
-            Label="Select investor"
-            @bind-Value="SelectedInvestor"
-            Required
-        />
+        <MudForm
+            @ref="_form"
+            Validation="@(new Func<object, IEnumerable<string>>(ValidateTotalPercentage))"
+        >
+            <MudTextField
+                @bind-Value="Name"
+                Label="Enter name"
+                Required
+            />
+            <MudSelectExtended
+                ItemCollection="AllInvestors"
+                ToStringFunc="@(investor => investor?.Name)"
+                Label="Select investor"
+                @bind-Value="SelectedInvestor"
+                Required
+            />
 
-        @foreach (var selectedAsset in SelectedAssetDistribution) {
-            var otherSelectedSecurities = SelectedAssetDistribution
-                .Where(ss => ss.Asset != null)
-                .Select(ss => ss.Asset);
+            @foreach (var selectedAsset in SelectedAssetDistribution) {
+                var otherSelectedSecurities = SelectedAssetDistribution
+                    .Where(ss => ss.Asset != null)
+                    .Select(ss => ss.Asset);
 
-            var availableSecurities = AllAssets.Except(otherSelectedSecurities).ToList();
+                var availableSecurities = AllAssets.Except(otherSelectedSecurities).ToList();
 
-            <MudStack Row="true">
-                <MudSelectExtended
-                    ItemCollection="availableSecurities"
-                    ToStringFunc="@(Asset => Asset?.Name)"
-                    Label="Select Asset"
-                    Style="width: 300px"
-                    Required
-                    @bind-Value="selectedAsset.Asset"
-                />
-                <div style="width: 80px">
-                    <MudNumericField
-                        HelperText="% of portfolio"
-                        Min="0"
-                        Max="100"
-                        Step="10"
+                <MudStack Row="true">
+                    <MudSelectExtended
+                        ItemCollection="availableSecurities"
+                        ToStringFunc="@(Asset => Asset?.Name)"
+                        Label="Select Asset"
+                        Style="width: 300px"
                         Required
-                        @bind-Value="selectedAsset.Percentage"
-                        Immediate
+                        @bind-Value="selectedAsset.Asset"
                     />
-                </div>
-            </MudStack>
-        }
+                    <div style="width: 80px">
+                        <MudNumericField
+                            HelperText="% of portfolio"
+                            Min="0"
+                            Max="100"
+                            Step="10"
+                            Required
+                            @bind-Value="selectedAsset.Percentage"
+                            Immediate
+                        />
+                    </div>
+                </MudStack>
+            }
 
-        <MudIconButton
-            Icon="@Icons.Material.Filled.Add"
-            Size="Size.Small"
-            OnClick="AddAsset"
-        />
+            <MudIconButton
+                Icon="@Icons.Material.Filled.Add"
+                Size="Size.Small"
+                OnClick="@(AddAsset)"
+            />
+
+            @* For some reason the form-level validation needs an element with a 'For' attribute to trigger properly. *@
+            <MudTextField
+                Style="display: none;"
+                For="@(() => _emptyString)"
+            />
+        </MudForm>
     </DialogContent>
 
     <DialogActions>
+        <MudSpacer/>
         <MudText>
-            Total percentage:
-            <span style="color:@(TotalPercentage == 100 ? "green" : "red")">@TotalPercentage%</span>
+            Total percentage: @TotalPercentage%
         </MudText>
+        <MudSpacer/>
         <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
         <MudButton
             Color="Color.Primary"
-            Disabled="TotalPercentage != 100"
-            OnClick="@(() => MudDialog.Close(DialogResult.Ok(new Portfolio { Name = Name, InvestorId = SelectedInvestor!.Id, AssetDistribution = SelectedAssetDistribution.ToDictionary(x => x.Asset!.Id, x => x.Percentage) })))"
+            OnClick="@(async () => {
+                         await _form.Validate();
+
+                         if (_form.IsValid && SelectedInvestor is not null) {
+                             // compiler doesn't know that SelectedInvestor can't be null here
+                             MudDialog.Close(DialogResult.Ok(new Portfolio {
+                                 Name = Name,
+                                 InvestorId = SelectedInvestor.Id,
+                                 AssetDistribution = SelectedAssetDistribution.ToDictionary(x => x.Asset!.Id, x => x.Percentage)
+                             }));
+                         }
+                     })"
         >
             OK
         </MudButton>
@@ -81,6 +103,8 @@
 
 @code {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private MudForm _form = null!;
 
     [Parameter] public List<Investor> AllInvestors { get; set; } = [];
 
@@ -109,4 +133,10 @@
     }
 
     private double TotalPercentage => SelectedAssetDistribution.Sum(x => x.Percentage);
+
+    private readonly string _emptyString = string.Empty;
+
+    private IEnumerable<string> ValidateTotalPercentage(object obj) {
+        if (Math.Abs(TotalPercentage - 100) > 0.1) yield return "Asset percentages must sum to 100%";
+    }
 }
